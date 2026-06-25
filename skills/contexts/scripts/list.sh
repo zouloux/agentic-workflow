@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# List context maps at and below the current directory, as "scope-path : name — description".
+# From repo root you see everything; from inside a sub-app you see only that scope.
+# Usage: list.sh [--active|--all|--archived] [start-dir]   (defaults: --active, CWD)
+set -euo pipefail
+. "$(dirname "$0")/_lib.sh"
+
+mode="active"; start=""
+for a in "$@"; do
+  case "$a" in
+    --active|--all|--archived) mode="${a#--}" ;;
+    *) start="$a" ;;
+  esac
+done
+[ -n "$start" ] || start="$PWD"
+
+print_contexts "$mode" "" "$start" || echo "(no $mode contexts under ${start})"
