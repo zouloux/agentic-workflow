@@ -1,6 +1,6 @@
 ---
 name: contexts
-description: Create, load, list, search and maintain lightweight topic "context maps" stored in contexts/, so agents can resume work on a topic without a full briefing. Use when the user mentions a context, asks to load/save/clean/archive a context, or before broad codebase exploration that relates to a known topic.
+description: Create, load, list, search and maintain lightweight topic "context maps" stored in .contexts/, so agents can resume work on a topic without a full briefing. Use when the user mentions a context, asks to load/save/clean/archive a context, or before broad codebase exploration that relates to a known topic.
 ---
 
 # Contexts
@@ -15,13 +15,13 @@ small is the whole point: loading a context must cost almost nothing.
 ## Monorepo model (read this first)
 
 Contexts are **scoped**. A *scope* is any directory holding an `AGENTS.md`/`CLAUDE.md`
-(the *scope marker*); its contexts live in `<scope>/contexts/`. The repo root is just one
+(the *scope marker*); its contexts live in `<scope>/.contexts/`. The repo root is just one
 scope among others.
 
 ```
-/AGENTS.md            → scope path "."          → /contexts            (global)
-/apps/app-1/AGENTS.md → scope path "apps/app-1" → /apps/app-1/contexts
-/apps/app-2/AGENTS.md → scope path "apps/app-2" → /apps/app-2/contexts
+/AGENTS.md            → scope path "."          → /.contexts            (global)
+/apps/app-1/AGENTS.md → scope path "apps/app-1" → /apps/app-1/.contexts
+/apps/app-2/AGENTS.md → scope path "apps/app-2" → /apps/app-2/.contexts
 ```
 
 **The single rule — both for you and the user:**
@@ -34,7 +34,7 @@ scope among others.
   never a mixup — even when two scopes use the same name.
 - **Writing** (`create`/`init`) anchors to the **nearest scope marker** walking up from
   the code the topic concerns. Global/cross-cutting topic → root. App-specific → that app.
-  Don't guess the location — run `scripts/scope.sh <path>` and write into the `contexts/`
+  Don't guess the location — run `scripts/scope.sh <path>` and write into the `.contexts/`
   it reports.
 - **All paths inside a context** (`Related files`, etc.) are relative to **that context's
   own scope marker** — e.g. `src/...` inside `apps/app-1`, not `apps/app-1/src/...`.
@@ -123,17 +123,17 @@ the essentials (topic, key decisions, boundaries worth remembering). Then run
 
 ## Init
 
-Use when a scope has no `contexts/` yet, or proactively offer it when a topic clearly
+Use when a scope has no `.contexts/` yet, or proactively offer it when a topic clearly
 warrants contexts (ask the user first). Init applies to one scope — by default the nearest
 one (`scripts/scope.sh`); in a monorepo, init the sub-app scope when the work is app-local,
 the root scope when it's global. On init:
 
-1. Create `<scope>/contexts/`.
+1. Create `<scope>/.contexts/`.
 2. **With the user's permission**, add this paragraph to that scope's `AGENTS.md`
    (idempotent — skip if a "Contexts" section already points to this skill):
 
    > ## Contexts
-   > This project keeps topic context maps in `contexts/`. Before broad exploration, use
+   > This project keeps topic context maps in `.contexts/`. Before broad exploration, use
    > the **contexts** skill to list/load any relevant context. After changing files,
    > decisions or patterns a context covers, update it via the skill.
    > If the contexts skill isn't available in your environment, ask the user to install
@@ -143,5 +143,5 @@ the root scope when it's global. On init:
    devs discover it:
 
    > ## Contexts
-   > Topic context maps live in `contexts/`. Manage them with your agent via the contexts
+   > Topic context maps live in `.contexts/`. Manage them with your agent via the contexts
    > skill: `npx skills add zouloux/agentic-workflow --skill contexts`.

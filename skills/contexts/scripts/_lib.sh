@@ -5,7 +5,7 @@
 #   - Read  = scan DOWNWARD from the current directory (find_contexts).
 #   - Write = anchor UPWARD to the nearest scope marker (nearest_scope).
 # A "scope" is a directory holding an AGENTS.md/CLAUDE.md; its contexts live in
-# <scope>/contexts/. A context's "scope path" is the scope dir relative to git root.
+# <scope>/.contexts/. A context's "scope path" is the scope dir relative to git root.
 
 git_root() { git rev-parse --show-toplevel 2>/dev/null || pwd; }
 
@@ -26,7 +26,7 @@ field() {
   ' "$1"
 }
 
-# scope_dir_of_file <file> — the scope dir (parent of the containing contexts/ dir).
+# scope_dir_of_file <file> — the scope dir (parent of the containing .contexts/ dir).
 scope_dir_of_file() { ( cd "$(dirname "$1")/.." && pwd ); }
 
 # scope_path_of_file <file> [root] — scope dir relative to git root ("." for root).

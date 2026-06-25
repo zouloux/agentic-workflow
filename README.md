@@ -4,7 +4,7 @@ Agent skills for the [open skills ecosystem](https://github.com/vercel-labs/skil
 
 ## contexts
 
-Lightweight topic **context maps** stored in a project's `contexts/` directory, so an
+Lightweight topic **context maps** stored in a project's `.contexts/` directory, so an
 agent can resume work on a topic without a full briefing. One small file per topic — a
 map (relevant files + non-obvious decisions), not a manual.
 
@@ -21,6 +21,8 @@ work. Key ideas:
   lazily, on demand.
 - **Facts auto-save, cleanup is proposed** — information is persisted at checkpoints
   without prompting (reviewed via `git diff`); reorganizing is offered or done on request.
+- **Scoped for monorepos** — contexts live next to the nearest `AGENTS.md`/`CLAUDE.md`;
+  reads scan downward from the CWD, writes anchor to the nearest scope.
 - **No manual index** — `list` reads each file's frontmatter, so it never drifts.
 
 See [`skills/contexts/SKILL.md`](skills/contexts/SKILL.md) for the full behavior.
