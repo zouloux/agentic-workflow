@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Resolve a context name to a file path (for load/update), scanning downward from CWD.
+# Resolve a lore name to a file path (for load/update), scanning downward from CWD.
 # Accepts a bare name, or a qualified "scope-path:name" when ambiguous.
 # Usage: resolve.sh <name|scope-path:name> [start-dir]
 set -euo pipefail

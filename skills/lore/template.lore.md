@@ -1,14 +1,14 @@
 ---
 name: <kebab-name>
-description: <one line — what this topic covers; shown in `list`>
+description: <one line — what this lore covers; shown in `list`>
 status: active
 ---
 
-# Context: <Topic Name>
+# Lore: <Subject Name>
 
 ## Topic
 
-One paragraph: what this topic covers, the current approach, and why it exists.
+One paragraph: what this lore covers, the current approach, and why it exists.
 
 ## Current state
 
@@ -26,7 +26,7 @@ know when resuming work.
 
 ## Related files
 
-<!-- Paths are relative to THIS context's scope marker (the nearest AGENTS.md/CLAUDE.md). -->
+<!-- Paths are relative to THIS lore's scope marker (the nearest AGENTS.md/CLAUDE.md). -->
 - `src/path/to/file.ts` — short description
 
 ## Related documentation
@@ -39,4 +39,4 @@ know when resuming work.
 
 ## Update when
 
-- Events that should trigger updating this context.
+- Events that should trigger updating this lore.

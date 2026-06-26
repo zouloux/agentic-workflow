@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Flip a context back to status: active.
+# Flip a lore back to status: active.
 # Usage: unarchive.sh <name|scope-path:name>
 set -euo pipefail
 . "$(dirname "$0")/_lib.sh"

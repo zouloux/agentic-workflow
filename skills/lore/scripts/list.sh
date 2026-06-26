@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# List context maps at and below the current directory, as "scope-path : name — description".
+# List lore at and below the current directory, as "scope-path : name — description".
 # From repo root you see everything; from inside a sub-app you see only that scope.
 # Usage: list.sh [--active|--all|--archived] [start-dir]   (defaults: --active, CWD)
 set -euo pipefail
@@ -14,4 +14,4 @@ for a in "$@"; do
 done
 [ -n "$start" ] || start="$PWD"
 
-print_contexts "$mode" "" "$start" || echo "(no $mode contexts under ${start})"
+print_lores "$mode" "" "$start" || echo "(no $mode lore under ${start})"

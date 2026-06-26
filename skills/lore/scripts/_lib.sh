@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
-# Shared helpers for context scripts. Sourced, not run directly.
+# Shared helpers for lore scripts. Sourced, not run directly.
 #
 # Model:
-#   - Read  = scan DOWNWARD from the current directory (find_contexts).
+#   - Read  = scan DOWNWARD from the current directory (find_lores).
 #   - Write = anchor UPWARD to the nearest scope marker (nearest_scope).
-# A "scope" is a directory holding an AGENTS.md/CLAUDE.md; its contexts live in
-# <scope>/.contexts/. A context's "scope path" is the scope dir relative to git root.
+# A "scope" is a directory holding an AGENTS.md/CLAUDE.md; its lore lives in
+# <scope>/.lores/. A lore's "scope path" is the scope dir relative to git root.
 
 git_root() { git rev-parse --show-toplevel 2>/dev/null || pwd; }
 
-# find_contexts [startdir] — list *.context.md at and below startdir (default CWD).
-find_contexts() {
+# find_lores [startdir] — list *.lore.md files inside any .lores/ dir at and below
+# startdir (default CWD). Restricting to .lores/ keeps stray *.lore.md files (e.g. the
+# skill's own template) out of results.
+find_lores() {
   local start="${1:-$PWD}"
   find "$start" \
     \( -name node_modules -o -name .git -o -name dist -o -name build \) -prune -o \
-    -type f -name '*.context.md' -print 2>/dev/null | sort
+    -type f -path '*/.lores/*.lore.md' -print 2>/dev/null | sort
 }
 
 # field <file> <key> — print a single-line frontmatter value, or empty.
@@ -26,7 +28,7 @@ field() {
   ' "$1"
 }
 
-# scope_dir_of_file <file> — the scope dir (parent of the containing .contexts/ dir).
+# scope_dir_of_file <file> — the scope dir (parent of the containing .lores/ dir).
 scope_dir_of_file() { ( cd "$(dirname "$1")/.." && pwd ); }
 
 # scope_path_of_file <file> [root] — scope dir relative to git root ("." for root).
@@ -38,7 +40,7 @@ scope_path_of_file() {
 }
 
 # nearest_scope <path> — walk up from <path> to the nearest dir with AGENTS.md or
-# CLAUDE.md; fall back to git root. This is where a new context must be written.
+# CLAUDE.md; fall back to git root. This is where a new lore must be written.
 nearest_scope() {
   local d="$1" root
   # Walk up to the nearest existing directory (the path may not exist yet).
@@ -74,29 +76,29 @@ resolve_by_name() {
     */*:*|*:*) scopefilter="${q%:*}"; name="${q##*:}" ;;
     *) name="$q" ;;
   esac
-  name="${name%.context.md}"; name="${name%.md}"
+  name="${name%.lore.md}"; name="${name%.md}"
   local f n
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    n="$(field "$f" name)"; [ -n "$n" ] || n="$(basename "$f" .context.md)"
+    n="$(field "$f" name)"; [ -n "$n" ] || n="$(basename "$f" .lore.md)"
     [ "$n" = "$name" ] || continue
     if [ -n "$scopefilter" ]; then
       [ "$(scope_path_of_file "$f" "$root")" = "$scopefilter" ] || continue
     fi
     printf '%s\n' "$f"
-  done < <(find_contexts "$start")
+  done < <(find_lores "$start")
 }
 
-# print_contexts <mode> <query> <start> — aligned "scope-path : name [— desc]".
+# print_lores <mode> <query> <start> — aligned "scope-path : name [— desc]".
 # mode: active|all|archived ; query: name+desc substring filter or "" . Returns 1 if none.
-print_contexts() {
+print_lores() {
   local mode="$1" query="$2" start="$3" root
   root="$(git_root)"
   local -a sps names descs stats
   local i=0 f name status desc sp
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    name="$(field "$f" name)"; [ -n "$name" ] || name="$(basename "$f" .context.md)"
+    name="$(field "$f" name)"; [ -n "$name" ] || name="$(basename "$f" .lore.md)"
     status="$(field "$f" status)"; [ -n "$status" ] || status="active"
     case "$mode" in
       active)   [ "$status" = active ]   || continue ;;
@@ -109,7 +111,7 @@ print_contexts() {
     sp="$(scope_path_of_file "$f" "$root")"
     sps[$i]="$sp"; names[$i]="$name"; descs[$i]="$desc"; stats[$i]="$status"
     i=$((i+1))
-  done < <(find_contexts "$start")
+  done < <(find_lores "$start")
   [ "$i" -gt 0 ] || return 1
   local w=0 s j=0
   for s in "${sps[@]}"; do [ ${#s} -gt $w ] && w=${#s}; done

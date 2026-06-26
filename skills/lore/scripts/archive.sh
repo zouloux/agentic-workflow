@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Flip a context to status: archived. Compact the file BEFORE running this.
+# Flip a lore to status: archived. Compact the file BEFORE running this.
 # Usage: archive.sh <name|scope-path:name>
 set -euo pipefail
 . "$(dirname "$0")/_lib.sh"
