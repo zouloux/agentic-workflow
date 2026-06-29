@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Show lore counts and health flags at and below the current directory.
-# Health: oversized (>1000 lines), stale (>90 days), broken Related-files refs.
+# Health: oversized (>1000 lines), stale (>90 days), broken file refs.
+# A "file ref" is a backtick token starting with `./` (globs with `*` are skipped).
 # Refs are resolved relative to each lore's own scope (its AGENTS.md/CLAUDE.md dir).
 # Usage: status.sh [start-dir]   (default: CWD)
 set -euo pipefail
@@ -35,7 +36,7 @@ while IFS= read -r f; do
     [ -n "$ref" ] || continue
     [ -e "$scopedir/$ref" ] || health="$health  ! missing: $ref (in $label)
 "
-  done < <(grep -oE '`[^`]+`' "$f" | tr -d '`' | grep '/' | sort -u || true)
+  done < <(grep -oE '`[^`]+`' "$f" | tr -d '`' | grep '^\./' | grep -v '\*' | sort -u || true)
 done < <(find_lores "$start")
 
 printf 'Lore under %s: %d active, %d archived (%d total)\n' \

@@ -79,8 +79,17 @@ for one explicitly — and then format it cleanly.
 
 Frontmatter is minimal — `name`, `description`, `status` (`active` | `archived`). No
 dates (the filesystem and git already have them). Body sections are all optional except
-the title. See `template.lore.md` for the full skeleton. Use paths relative to the lore's
-scope marker. A lore should stay well under ~1000 lines.
+the title. See `template.lore.md` for the full skeleton. A lore should stay well under
+~1000 lines.
+
+**File-path convention.** Write every file/dir reference as a backtick token prefixed with
+`./`, relative to the lore's own scope marker — e.g. `` `./src/foo.ts` `` inside the
+`apps/app-1` scope, never `` `./apps/app-1/src/foo.ts` ``. `status.sh` treats every `./…`
+token as a real path and flags it if missing, so the `./` prefix is an explicit "validate
+me" marker: things that merely contain a slash (API routes, URLs, `@scope/pkg`, code
+snippets) must **not** start with `./` and are left alone. Globs are the one exception —
+they can't resolve to a single file, so write them **without** `./` (e.g.
+`` `src/**/*.test.ts` ``) so they're skipped rather than reported missing.
 
 ## Saving: the core rule
 

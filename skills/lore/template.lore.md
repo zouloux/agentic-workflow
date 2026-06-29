@@ -26,12 +26,14 @@ know when resuming work.
 
 ## Related files
 
-<!-- Paths are relative to THIS lore's scope marker (the nearest AGENTS.md/CLAUDE.md). -->
-- `src/path/to/file.ts` — short description
+<!-- File paths: prefix `./` and write them relative to THIS lore's scope marker
+     (nearest AGENTS.md/CLAUDE.md) — e.g. `./src/foo.ts`, not `./apps/app-1/src/foo.ts`.
+     status.sh validates every `./…` ref. Globs (`*`) are NOT validated: omit the `./`. -->
+- `./src/path/to/file.ts` — short description
 
 ## Related documentation
 
-- `docs/path/to/doc.md` — short description
+- `./docs/path/to/doc.md` — short description
 
 ## Tasks
 
