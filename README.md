@@ -28,6 +28,20 @@ filler. Leads with the answer or next action, numbers multi-step work, tracks st
 line. Activates only on explicit request (`/terse`, or asking for a concise/brief answer) —
 never auto-triggers.
 
+## track
+
+[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/track/SKILL.md`](skills/track/SKILL.md)
+
+```
+npx skills add -g zouloux/agentic-workflow@track
+```
+
+Cross-project TODO tracking in a store **outside** your repos, so tasks survive branch
+switches and never pollute the working tree. One markdown file per project, each task
+tagged with its branch + date. List all tasks in a project, or just the current branch
+(`/track branch`), or every project at once (`/track all`). Agent-agnostic store under
+`${XDG_DATA_HOME:-~/.local/share}/track` (override with `$TRACK_DIR`).
+
 ## Trusted third-party skills
 
 Skills I've audited and use. **Install per project** (no `-g`) so they only load where the
