@@ -15,6 +15,19 @@ project's `.lores/` directories, so an agent can resume work without a full brie
 small file per topic: a map (relevant files + non-obvious decisions), not a manual.
 Token-minimal, facts auto-save, scoped for monorepos, no manual index.
 
+## notify
+
+[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/notify/SKILL.md`](skills/notify/SKILL.md)
+
+```
+npx skills add -g zouloux/agentic-workflow@notify
+```
+
+Mobile notifications from macOS agents to an iPhone through iCloud Reminders — no
+third-party service or server. The skill works immediately after installation: ask an
+agent to notify you when work completes or needs attention. The latest alert stays
+in the dedicated `Agents` list until the next one replaces it.
+
 ## terse
 
 [github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/terse/SKILL.md`](skills/terse/SKILL.md)
@@ -28,7 +41,10 @@ filler. Leads with the answer or next action, numbers multi-step work, tracks st
 line. Activates only on explicit request (`/terse`, or asking for a concise/brief answer) —
 never auto-triggers.
 
-## track
+## track (deprecated)
+
+> [!WARNING]
+> Deprecated. Kept for existing users; avoid new installations.
 
 [github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/track/SKILL.md`](skills/track/SKILL.md)
 

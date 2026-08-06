@@ -1,0 +1,83 @@
+#!/bin/zsh
+
+set -euo pipefail
+
+usage() {
+  /bin/cat <<'EOF'
+Usage:
+  agent-notify "Title" ["Message"]
+
+Optional environment variables:
+  AGENT_NOTIFY_LIST     Target Reminders list (default: Agents)
+  AGENT_NOTIFY_DELAY    Delay before the alert, in seconds (default: 60)
+EOF
+}
+
+if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if (( $# < 1 || $# > 2 )); then
+  usage >&2
+  exit 64
+fi
+
+if [[ $OSTYPE != darwin* || ! -d /System/Applications/Reminders.app ]]; then
+  print -u2 -- "agent-notify: macOS Reminders is required"
+  exit 69
+fi
+
+title=$1
+message=${2:-}
+list_name=${AGENT_NOTIFY_LIST:-Agents}
+delay=${AGENT_NOTIFY_DELAY:-60}
+
+if [[ -z $title ]]; then
+  print -u2 -- "agent-notify: title cannot be empty"
+  exit 64
+fi
+
+if [[ $delay != <-> ]]; then
+  print -u2 -- "agent-notify: AGENT_NOTIFY_DELAY must be a non-negative integer"
+  exit 64
+fi
+
+/usr/bin/osascript - "$list_name" "$title" "$message" "$delay" <<'APPLESCRIPT' >/dev/null
+on run argv
+  set listName to item 1 of argv
+  set titleText to item 2 of argv
+  set bodyText to item 3 of argv
+  set delaySeconds to (item 4 of argv) as integer
+  set markerText to "— agent-notify"
+  set notificationDate to (current date) + delaySeconds
+
+  if bodyText is "" then
+    set markedBody to markerText
+  else
+    set markedBody to bodyText & return & return & markerText
+  end if
+
+  tell application "Reminders"
+    set targetAccount to default account
+
+    try
+      set targetList to first list of targetAccount whose name is listName
+    on error
+      set targetList to make new list at end of lists of targetAccount with properties {name:listName}
+    end try
+
+    tell targetList
+      try
+        delete (every reminder whose name starts with "🤖 ")
+      end try
+
+      set newReminder to make new reminder with properties {name:"🤖 " & titleText, body:markedBody, due date:notificationDate, remind me date:notificationDate, priority:1, flagged:true}
+    end tell
+
+    return id of newReminder
+  end tell
+end run
+APPLESCRIPT
+
+print -- "Reminder 🤖 scheduled in “${list_name}” in ${delay}s; previous agent-notify reminder removed."
