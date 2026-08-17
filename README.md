@@ -15,18 +15,18 @@ project's `.lores/` directories, so an agent can resume work without a full brie
 small file per topic: a map (relevant files + non-obvious decisions), not a manual.
 Token-minimal, facts auto-save, scoped for monorepos, no manual index.
 
-## notify
+## afk
 
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/notify/SKILL.md`](skills/notify/SKILL.md)
+[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/afk/SKILL.md`](skills/afk/SKILL.md)
 
 ```
-npx skills add -g zouloux/agentic-workflow@notify
+npx skills add -g zouloux/agentic-workflow@afk
 ```
 
-Mobile notifications from macOS agents to an iPhone through iCloud Reminders — no
-third-party service or server. The skill works immediately after installation: ask an
-agent to notify you when work completes or needs attention. The latest alert stays
-in the dedicated `Agents` list until the next one replaces it.
+AFK mode for macOS agents, with mobile notifications sent to an iPhone through iCloud
+Reminders — no third-party service or server. While you are away, the agent alerts you
+when work completes, needs a decision, or becomes blocked. The latest alert stays in the
+dedicated `Agents` list until the next one replaces it.
 
 ## terse
 
@@ -36,10 +36,14 @@ in the dedicated `Agents` list until the next one replaces it.
 npx skills add -g zouloux/agentic-workflow@terse
 ```
 
-Answer-first, minimal-token output: the important info fits one non-scrolling screen, no
-filler. Leads with the answer or next action, numbers multi-step work, tracks state in one
-line. Activates only on explicit request (`/terse`, or asking for a concise/brief answer) —
-never auto-triggers.
+Answer-first, minimal-token output: focused, brief answers whose important information fits
+one non-scrolling screen. Leads with the answer or next action, keeps explanations and
+caveats short, numbers multi-step work, and tracks state in one line. Activates only on
+explicit request (`/terse`, or asking for a concise/brief answer) — never auto-triggers.
+
+It also recognizes action-control keywords: `Explore` inspects the repository and supplied
+links without sub-agents; `No go` forbids implementation; `Go` allows implementation; and
+`WDYT?` requests a considered, non-overengineered answer without taking action.
 
 ## track (deprecated)
 

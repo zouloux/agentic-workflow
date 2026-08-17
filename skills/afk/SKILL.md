@@ -1,22 +1,22 @@
 ---
-name: notify
-description: Mobile notifications via iCloud Reminders on macOS. Load when the user mentions notifications, being AFK or away, or asks the agent to alert them during work.
+name: afk
+description: AFK mode with mobile notifications via iCloud Reminders on macOS. Load when the user says they are AFK or away, or asks the agent to alert them during work.
 ---
 
-# Notify
+# AFK
 
 Send a simple alert from a macOS agent to the user's iPhone using the built-in Reminders
 app and iCloud sync. No third-party service or server is required.
 
-Invocation: `/notify <operation or message>` — e.g. `/notify test` or
-`/notify "Codex" "I have a question about deployment."`.
+Invocation: `/afk <operation or message>` — e.g. `/afk test` or
+`/afk "Codex" "I have a question about deployment."`.
 
 ## Explicit activation only
 
 **Never use this skill proactively without an explicit signal from the user.** Valid
 signals include:
 
-- `/notify ...`;
+- `/afk ...`;
 - “notify me when you need me” or “ping me when this is done”;
 - the user explicitly saying they are AFK, stepping away, or leaving for a while while
   the agent continues working.
@@ -50,7 +50,7 @@ the terminal or agent application to control Reminders; never work around a deni
 
 | Operation | What to do |
 |---|---|
-| **test** | Run `AGENT_NOTIFY_DELAY=1 scripts/agent-notify "Notify" "This is a test."`. Tell the user to expect the alert immediately. |
+| **test** | Run `AGENT_NOTIFY_DELAY=1 scripts/agent-notify "AFK" "This is a test."`. Tell the user to expect the alert immediately. |
 | **send** | Run `scripts/agent-notify "<agent>" "<simple message>"`. |
 | **when done** | Treat this as a current-task obligation. Continue the task, then send one simple completion notification. Do not notify after intermediate turns. |
 
