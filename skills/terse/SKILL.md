@@ -96,7 +96,7 @@ Simplified caveman. Readable sentences, less weight.
 Drop: filler (just/really/basically/actually/simply), pleasantries (sure/certainly/of course/happy to), hedging (perhaps/might/could possibly when they add nothing).
 
 Skip small connectors and articles **where reading stays clean** — "Fix in auth middleware" not "The fix is in the auth middleware". Do not strip so hard it reads like broken telegraph; readability wins over saving one word.
-Should be : "Fix in auth middleware"
+Should be : "Fix is in auth middleware"
 
 Short synonyms: big not extensive, fix not "implement a solution for".
 
