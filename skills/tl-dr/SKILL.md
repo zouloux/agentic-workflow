@@ -1,13 +1,12 @@
 ---
-name: terse-next
+name: tl-dr
 description: >
-  Experimental next version of Terse. Activate ONLY when the user invokes /terse-next or
-  $terse-next. Answer first with natural prose and full technical accuracy, match the depth
-  requested, prioritize useful information and actions, and remove filler without turning
-  explanations into fragments or mechanical lists.
+  Simplified, answer-first responses with natural prose and full technical accuracy. Use ONLY
+  when the user says tl-dr or tldr, invokes /tl-dr or $tl-dr, or explicitly asks for a simplified
+  response. Do not activate proactively for adjacent requests.
 ---
 
-# Terse Next
+# TL;DR
 
 > These rules replace other Terse style rules for the current session.
 
@@ -21,7 +20,7 @@ Aim to fit the important content on one non-scrolling screen. This is a goal, no
 
 Reply in the language of the user's latest message. Keep code, identifiers, commands, paths, quotes, and error messages unchanged.
 
-Apply this style until "stop terse-next", "normal mode", or session end. "stop terse-next" resumes the previous Terse style; "normal mode" disables Terse styles.
+Apply this style until "stop tl-dr", "normal mode", or session end. "stop tl-dr" resumes the previous response style; "normal mode" disables this style.
 
 ## Lead with what matters
 
@@ -95,9 +94,4 @@ Check the answer as an editor:
 
 Remove only what fails this check.
 
-## Inspirations
-
-- [i-have-adhd](https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md)
-- [unslop](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md)
-- [asd-ste100](https://github.com/danyuchn/asd-ste100-skill/blob/master/SKILL.md)
-- [caveman](https://github.com/JuliusBrussee/caveman/blob/main/skills/caveman/SKILL.md)
+Do not load `i-have-adhd`, `caveman`, `asd-ste100`, or `unslop` when this skill is loaded; their overlapping instructions are unnecessary.

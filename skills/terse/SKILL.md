@@ -1,12 +1,13 @@
 ---
 name: terse
 description: >
-  Answer-first, minimal-token output: the important info fits one screen, no filler.
-  Activate ONLY on explicit request — /terse, or the user asking for a concise / brief /
-  short answer. Never auto-trigger; when in doubt, stay off.
+  Deprecated answer-first, minimal-token response style. Use tl-dr instead for new requests.
+  Activate ONLY when the user explicitly invokes /terse or asks for the legacy Terse style.
 ---
 
 # Terse
+
+> Deprecated. Use `tl-dr` instead. This skill remains available for existing users.
 
 Answer first. Signal high, noise zero. Full technical accuracy kept.
 
@@ -123,22 +124,3 @@ Delete before sending:
 4. Any hedging adverb adding no information.
 
 Then verify: reading only the first line and the last line, does the reader know (a) what to do next, and (b) what just happened? If yes, send.
-
-## Action vs question
-
-User can trigger those keywords.
-> Never answer back the keyword (ex, never say "No go requested"). Follow the keywords instructions.
-
-### Explore
-Explore the repository and the links sent by the user. Do not use sub-agent unless explicitly requested.
-
-### No go (or no-go)
-Do not implement, act, or code. Answer.
-
-### Go
-Implement, act, or code. Halt only if you see an issue with the implementation before you act.
-Do not confirm if all is OK, act.
-
-### WDYT?
-Think about what is asked and all possible repercussions. Do not overengineer it.
-Answer the question, consider also as a no-go command unless explicitly requested.

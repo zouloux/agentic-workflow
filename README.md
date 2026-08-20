@@ -2,6 +2,51 @@
 
 Agent skills for the [open skills ecosystem](https://github.com/vercel-labs/skills).
 
+## tl-dr
+
+[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/tl-dr/SKILL.md`](skills/tl-dr/SKILL.md)
+
+```
+npx skills add -g zouloux/agentic-workflow@tl-dr
+```
+
+Simplified, answer-first responses with natural prose and full technical accuracy. It matches the
+requested depth, removes irrelevant detail, and uses Simplified Technical English only where
+strict instructions benefit from it. It activates only when the user says `tl-dr` or `tldr`,
+invokes `/tl-dr` or `$tl-dr`, or explicitly asks for a simplified response. It never activates
+proactively. Say `stop tl-dr` to resume the previous response style.
+
+Inspired by these skills:
+
+- [`i-have-adhd`](https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md)
+- [`unslop`](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md)
+- [`asd-ste100`](https://github.com/danyuchn/asd-ste100-skill/blob/master/SKILL.md)
+- [`caveman`](https://github.com/JuliusBrussee/caveman/blob/main/skills/caveman/SKILL.md)
+
+## directives
+
+[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/directives/SKILL.md`](skills/directives/SKILL.md)
+
+```
+npx skills add -g zouloux/agentic-workflow@directives
+```
+
+Execution-control keywords for assigning different modes to a whole message or individual tasks.
+Uppercase keywords must activate the skill; lowercase keywords activate it only when clearly used
+as orders. Without a keyword, the agent behaves normally.
+
+| Keyword | Behavior |
+|---------|----------|
+| `EXPLORE` | Inspect thoroughly without subagents or mutations. |
+| `ASK` | Answer directly; explore only when necessary. |
+| `NO GO` | Study context briefly without implementing or mutating. |
+| `WDYT` | Evaluate a proposal and verify its impacts without mutating. |
+| `GO` | Implement or execute; confirm destructive actions first. |
+| `PLAN` | Produce a concrete plan without mutating. |
+| `VERIFY` | Verify work performed during the current session. |
+| `REVIEW` | Review all current Git changes without fixing them. |
+| `FIX` | Fix the most recent relevant findings. |
+
 ## lore
 
 [github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/lore/SKILL.md`](skills/lore/SKILL.md)
@@ -28,7 +73,10 @@ Reminders — no third-party service or server. While you are away, the agent al
 when work completes, needs a decision, or becomes blocked. The latest alert stays in the
 dedicated `Agents` list until the next one replaces it.
 
-## terse
+## terse (deprecated)
+
+> [!WARNING]
+> Deprecated. Use [`tl-dr`](#tl-dr) for new installations.
 
 [github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/terse/SKILL.md`](skills/terse/SKILL.md)
 
@@ -36,35 +84,8 @@ dedicated `Agents` list until the next one replaces it.
 npx skills add -g zouloux/agentic-workflow@terse
 ```
 
-Answer-first, minimal-token output: focused, brief answers whose important information fits
-one non-scrolling screen. Leads with the answer or next action, keeps explanations and
-caveats short, numbers multi-step work, and tracks state in one line. Activates only on
-explicit request (`/terse`, or asking for a concise/brief answer) — never auto-triggers.
-
-It also recognizes action-control keywords: `Explore` inspects the repository and supplied
-links without sub-agents; `No go` forbids implementation; `Go` allows implementation; and
-`WDYT?` requests a considered, non-overengineered answer without taking action.
-
-## terse-next
-
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/terse-next/SKILL.md`](skills/terse-next/SKILL.md)
-
-```
-npx skills add -g zouloux/agentic-workflow@terse-next
-```
-
-Experimental next version of Terse. It keeps answers and actions first, but favors natural
-connected prose over mechanical compression. It matches the requested depth, removes irrelevant
-detail, and uses Simplified Technical English only where strict instructions benefit from it.
-Invoke it explicitly with `$terse-next`; it replaces other Terse style rules for the current
-session. Say `stop terse-next` to resume the previous Terse style.
-
-Inspired by these skills:
-
-- [`i-have-adhd`](https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md)
-- [`unslop`](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md)
-- [`asd-ste100`](https://github.com/danyuchn/asd-ste100-skill/blob/master/SKILL.md)
-- [`caveman`](https://github.com/JuliusBrussee/caveman/blob/main/skills/caveman/SKILL.md)
+Legacy answer-first, minimal-token response style. Kept for existing users and activated only
+when the user explicitly asks for the legacy Terse behavior.
 
 ## track (deprecated)
 
@@ -105,11 +126,11 @@ version I read, not a guarantee of future updates.
 Remove a globally installed skill:
 
 ```bash
-npx skills remove -g terse
+npx skills remove -g tl-dr
 ```
 
 Install it again to update it from the repository:
 
 ```bash
-npx skills add -g zouloux/agentic-workflow@terse
+npx skills add -g zouloux/agentic-workflow@tl-dr
 ```
