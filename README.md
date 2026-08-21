@@ -12,9 +12,10 @@ npx skills add -g zouloux/agentic-workflow@tl-dr
 
 Simplified, answer-first responses with natural prose and full technical accuracy. It matches the
 requested depth, removes irrelevant detail, and uses Simplified Technical English only where
-strict instructions benefit from it. It activates only when the user says `tl-dr` or `tldr`,
-invokes `/tl-dr` or `$tl-dr`, or explicitly asks for a simplified response. It never activates
-proactively. Say `stop tl-dr` to resume the previous response style.
+strict instructions benefit from it. It activates when the user requests concise or simplified
+responses, explicitly names the skill, or applicable agent instructions require it. It does not
+self-activate merely because a shorter response might be useful. Say `stop tl-dr` to resume the
+previous response style. Activation and deactivation are announced once in the current language.
 
 Inspired by these skills:
 
@@ -37,15 +38,32 @@ as orders. Without a keyword, the agent behaves normally.
 
 | Keyword | Behavior |
 |---------|----------|
-| `EXPLORE` | Inspect thoroughly without subagents or mutations. |
-| `ASK` | Answer directly; explore only when necessary. |
-| `NO GO` | Study context briefly without implementing or mutating. |
+| `PENDING` | Leave the scoped task aside until the user authorizes further handling. |
+| `TODO` | List all known incomplete tasks without acting on them. |
+| `EXPLORE` | Inspect without mutations; ask when context is insufficient or research stops progressing. |
+| `ASK` | Clarify important uncertainty with the user before acting. |
+| `ANSWER` | Answer the scoped question directly without executing actions or mutating. |
+| `NOGO` | Study context briefly without implementing or mutating. |
 | `WDYT` | Evaluate a proposal and verify its impacts without mutating. |
-| `GO` | Implement or execute; confirm destructive actions first. |
+| `GO` | Implement or execute; ask only when blocked or in major doubt. |
 | `PLAN` | Produce a concrete plan without mutating. |
 | `VERIFY` | Verify work performed during the current session. |
-| `REVIEW` | Review all current Git changes without fixing them. |
+| `REVIEW` | Review the complete current state of a requested feature or file without using Git. |
 | `FIX` | Fix the most recent relevant findings. |
+
+The skill also coordinates multi-task requests. Use `T-1`, `T-2`, and `T-1A` for ordered tasks
+and subtasks, or names such as `T-AUTH`. A directive attached to a task applies only to that task.
+`T-1.1` identifies a discussion point under `T-1`; `T-1A` identifies a tracked subtask with its
+own lifecycle. On activation, the skill lists the available directives once without descriptions.
+After `ANSWER` or `WDYT`, it proposes a concise `PENDING` task only when the response identifies
+a concrete next action worth tracking.
+
+```text
+T-1. Explain the failure - ANSWER
+T-2. Update the parser - GO
+T-2A. Add the regression test - GO
+T-AUTH. Review the authentication flow - REVIEW
+```
 
 ## lore
 

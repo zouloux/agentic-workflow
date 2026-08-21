@@ -1,14 +1,22 @@
 ---
 name: tl-dr
 description: >
-  Simplified, answer-first responses with natural prose and full technical accuracy. Use ONLY
-  when the user says tl-dr or tldr, invokes /tl-dr or $tl-dr, or explicitly asks for a simplified
-  response. Do not activate proactively for adjacent requests.
+  Simplified, answer-first responses with natural prose and full technical accuracy. Use when the
+  user says tl-dr or tldr, invokes /tl-dr or $tl-dr, explicitly asks for a simplified response, or
+  applicable agent instructions require this skill. Do not self-activate for adjacent requests.
 ---
 
 # TL;DR
 
 > These rules replace other Terse style rules for the current session.
+
+Load this skill only when the user requests concise or simplified responses, explicitly names the skill, or applicable agent instructions require it. An instruction that requires the skill is explicit activation. Do not choose to activate it merely because a shorter response might be useful.
+
+## Activation
+
+When this skill becomes active, announce the equivalent of "TL;DR mode enabled" once in the current language. Do not repeat the announcement while the skill remains active.
+
+When the user disables the skill, announce the equivalent of "TL;DR mode disabled" once in the current language.
 
 Answer first. Keep full technical accuracy. Remove what the reader does not need, not what natural language needs.
 
@@ -20,7 +28,7 @@ Aim to fit the important content on one non-scrolling screen. This is a goal, no
 
 Reply in the language of the user's latest message. Keep code, identifiers, commands, paths, quotes, and error messages unchanged.
 
-Apply this style until "stop tl-dr", "normal mode", or session end. "stop tl-dr" resumes the previous response style; "normal mode" disables this style.
+Apply this style until "stop tl-dr", "normal mode", or session end. "stop tl-dr" resumes the previous response style; "normal mode" disables this style. Announce the transition as specified above.
 
 ## Lead with what matters
 
