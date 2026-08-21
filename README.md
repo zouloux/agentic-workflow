@@ -1,14 +1,95 @@
 # agentic-workflow
 
-Agent skills for the [open skills ecosystem](https://github.com/vercel-labs/skills).
+Composable agent skills for the [open skills ecosystem](https://github.com/vercel-labs/skills).
+Together they control execution, organize the current thread, preserve project knowledge, and
+make long-running work resumable across sessions and agents.
 
-## tl-dr
+## Core workflow
 
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/tl-dr/SKILL.md`](skills/tl-dr/SKILL.md)
+| Skill | Role | Lifetime |
+|-------|------|----------|
+| [`tl-dr`](#tl-dr) | Keep responses answer-first, concise, and technically complete | Current session |
+| [`directives`](#directives) | Control what the agent may do now | Current request |
+| [`tasks`](#tasks) | Track explicit `T1`/`T-*` work in the current thread | Current thread |
+| [`contexts`](#contexts) | Preserve factual `C-*` project knowledge in Git | Long term |
+| [`missions`](#missions) | Track outcome-driven `M-*` work in Git | Until completion |
 
+The three work layers stay separate:
+
+```text
+M-AUTH                  persistent mission
+|-- C-BACKEND           durable factual context
+|-- C-INTEGRATION       durable factual context
+`-- T1, T2              ephemeral work for the current thread
+      `-- GO, PLAN...    execution directives
+
+tl-dr shapes the agent's responses across every layer.
 ```
+
+Install the core workflow:
+
+```bash
 npx skills add -g zouloux/agentic-workflow@tl-dr
+npx skills add -g zouloux/agentic-workflow@directives
+npx skills add -g zouloux/agentic-workflow@tasks
+npx skills add -g zouloux/agentic-workflow@contexts
+npx skills add -g zouloux/agentic-workflow@missions
 ```
+
+### Thread task
+
+```text
+User:
+T1: Authentication test fails. Find cause. - EXPLORE
+
+Agent:
+The fixture token expires before the request is sent.
+No files were changed.
+
+User:
+T1: Fix the fixture and verify the test - GO
+
+Agent:
+T1 completed. The fixture now creates a fresh token and the test passes.
+```
+
+### Long-running mission
+
+```text
+User:
+M-AUTH STATUS
+
+Agent:
+M-AUTH is active.
+In progress: refresh-token support.
+Blocked: provider sandbox credentials.
+Next: complete token rotation tests.
+Contexts: C-BACKEND, C-INTEGRATION.
+
+User:
+M-AUTH: implement token rotation - GO
+
+Agent:
+Token rotation is implemented and verified. M-AUTH now records the updated
+current state and the remaining work.
+```
+
+### Factual context
+
+```text
+User:
+C-BACKEND: explain the current session model - ANSWER
+
+Agent:
+The backend uses rotating refresh tokens. Each successful rotation invalidates
+the previous token, while the session record keeps the active token family ID.
+```
+
+## Skill reference
+
+### tl-dr
+
+[`skills/tl-dr/SKILL.md`](skills/tl-dr/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@tl-dr`
 
 Simplified, answer-first responses with natural prose and full technical accuracy. It matches the
 requested depth, removes irrelevant detail, and uses Simplified Technical English only where
@@ -24,88 +105,90 @@ Inspired by these skills:
 - [`asd-ste100`](https://github.com/danyuchn/asd-ste100-skill/blob/master/SKILL.md)
 - [`caveman`](https://github.com/JuliusBrussee/caveman/blob/main/skills/caveman/SKILL.md)
 
-## directives
+### directives
 
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/directives/SKILL.md`](skills/directives/SKILL.md)
+[`skills/directives/SKILL.md`](skills/directives/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@directives`
 
-```
-npx skills add -g zouloux/agentic-workflow@directives
-```
+Execution-control modes can apply to a whole message or to a syntactically attached request.
+Without a directive, the agent behaves normally.
 
-Execution-control keywords for assigning different modes to a whole message or individual tasks.
-Uppercase keywords must activate the skill; lowercase keywords activate it only when clearly used
-as orders. Without a keyword, the agent behaves normally.
-
-| Keyword | Behavior |
-|---------|----------|
-| `PENDING` | Leave the scoped task aside until the user authorizes further handling. |
-| `TODO` | List all known incomplete tasks without acting on them. |
-| `EXPLORE` | Inspect without mutations; ask when context is insufficient or research stops progressing. |
-| `ASK` | Clarify important uncertainty with the user before acting. |
-| `ANSWER` | Answer the scoped question directly without executing actions or mutating. |
-| `NOGO` | Study context briefly without implementing or mutating. |
-| `WDYT` | Evaluate a proposal and verify its impacts without mutating. |
-| `GO` | Implement or execute; ask only when blocked or in major doubt. |
-| `PLAN` | Produce a concrete plan without mutating. |
+| Directive | Behavior |
+|-----------|----------|
+| `GO` | Implement or execute the request. |
+| `NOGO` | Treat the request as context without implementing it. |
+| `EXPLORE` | Investigate thoroughly without mutations. |
+| `ASK` | Clarify important uncertainty before acting. |
+| `ANSWER` | Answer directly without executing or mutating. |
+| `WDYT` | Evaluate a proposal and its trade-offs without mutating. |
+| `AWG` | Check readiness for `GO` and report only material blockers. |
+| `PLAN` | Produce a concrete implementation plan without mutating. |
 | `VERIFY` | Verify work performed during the current session. |
-| `REVIEW` | Review the complete current state of a requested feature or file without using Git. |
-| `FIX` | Fix the most recent relevant findings. |
+| `REVIEW` | Review the complete current implementation without using Git. |
+| `FIX` | Fix the most recent relevant review findings. |
 
-The skill also coordinates multi-task requests. Use `T-1`, `T-2`, and `T-1A` for ordered tasks
-and subtasks, or names such as `T-AUTH`. A directive attached to a task applies only to that task.
-`T-1.1` identifies a discussion point under `T-1`; `T-1A` identifies a tracked subtask with its
-own lifecycle. On activation, the skill lists the available directives once without descriptions.
-After `ANSWER` or `WDYT`, it proposes a concise `PENDING` task only when the response identifies
-a concrete next action worth tracking.
+`AWG` is a read-only preflight. It answers whether the request has enough information and
+permission for `GO`, or reports only the material blockers. It never grants or infers permission,
+and all `GO` safety and confirmation rules still apply. A conditional form can proceed immediately
+when ready:
 
 ```text
-T-1. Explain the failure - ANSWER
-T-2. Update the parser - GO
-T-2A. Add the regression test - GO
-T-AUTH. Review the authentication flow - REVIEW
+Implement OAuth login. AWG?
+Implement OAuth login. AWG? If yes, GO.
 ```
 
-## lore
+### tasks
 
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/lore/SKILL.md`](skills/lore/SKILL.md)
+[`skills/tasks/SKILL.md`](skills/tasks/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@tasks`
 
-```
-npx skills add -g zouloux/agentic-workflow@lore
-```
+Ephemeral work items for the current conversation. `T1` and `T2` are the recommended numeric
+forms; `T-1` and `T-2` remain equivalent aliases. `T1A` is an independently tracked subtask,
+while `T1-S1` is the first ordered step of `T1`. Task state never leaves the thread. `TODO` lists
+open tasks, `PENDING` defers one, and `CANCEL` closes one without execution.
 
-Lightweight per-topic **lore** files — living, evolving notes on a subject — stored in a
-project's `.lores/` directories, so an agent can resume work without a full briefing. One
-small file per topic: a map (relevant files + non-obvious decisions), not a manual.
-Token-minimal, facts auto-save, scoped for monorepos, no manual index.
-
-## afk
-
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/afk/SKILL.md`](skills/afk/SKILL.md)
-
-```
-npx skills add -g zouloux/agentic-workflow@afk
+```text
+T1: Explain the failure - ANSWER
+T2: Update the parser - GO
+T2A: Add the regression test - GO
+T2-S1: Update the parser grammar
+T2-S2: Verify existing syntax remains compatible
 ```
 
-AFK mode for macOS agents, with mobile notifications sent to an iPhone through iCloud
-Reminders — no third-party service or server. While you are away, the agent alerts you
-when work completes, needs a decision, or becomes blocked. The latest alert stays in the
-dedicated `Agents` list until the next one replaces it.
+### contexts
 
-## terse (deprecated)
+[`skills/contexts/SKILL.md`](skills/contexts/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@contexts`
+
+Durable factual maps stored in scoped `.contexts/` directories. `C-*` contexts contain current
+system state, decisions, boundaries, and related files or documentation. They never contain
+TODOs or work progress. The skill supports monorepos and offers a confirmation-gated migration
+from deprecated `.lores/` storage.
+
+### missions
+
+[`skills/missions/SKILL.md`](skills/missions/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@missions`
+
+Durable macro work stored in scoped `.missions/` directories. An `M-*` mission records its
+objective, current state, in-progress work, blockers, next actions, nice-to-have items, completion
+criteria, and related `C-*` contexts. Use `MISSIONS`, `M-* STATUS`, and `M-* DONE` to manage it.
+
+### afk
+
+[`skills/afk/SKILL.md`](skills/afk/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@afk`
+
+AFK mode for macOS agents, with mobile notifications sent to an iPhone through iCloud Reminders.
+The agent alerts you when work completes, needs a decision, or becomes blocked.
+
+## Deprecated skills
+
+### terse
 
 > [!WARNING]
 > Deprecated. Use [`tl-dr`](#tl-dr) for new installations.
 
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/terse/SKILL.md`](skills/terse/SKILL.md)
+[`skills/terse/SKILL.md`](skills/terse/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@terse`
 
-```
-npx skills add -g zouloux/agentic-workflow@terse
-```
+Legacy answer-first, minimal-token response style.
 
-Legacy answer-first, minimal-token response style. Kept for existing users and activated only
-when the user explicitly asks for the legacy Terse behavior.
-
-## track (deprecated)
+### track
 
 > [!WARNING]
 > Deprecated. Kept for existing users; avoid new installations.
@@ -116,11 +199,21 @@ when the user explicitly asks for the legacy Terse behavior.
 npx skills add -g zouloux/agentic-workflow@track
 ```
 
-Cross-project TODO tracking in a store **outside** your repos, so tasks survive branch
-switches and never pollute the working tree. One markdown file per project, each task
-tagged with its branch + date. List all tasks in a project, or just the current branch
-(`/track branch`), or every project at once (`/track all`). Agent-agnostic store under
-`${XDG_DATA_HOME:-~/.local/share}/track` (override with `$TRACK_DIR`).
+Legacy cross-project TODO tracking in an agent-agnostic store outside repositories.
+
+### lore
+
+> [!WARNING]
+> Deprecated. Use [`contexts`](#contexts), its direct replacement, for new installations.
+
+[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/lore/SKILL.md`](skills/lore/SKILL.md)
+
+```
+npx skills add -g zouloux/agentic-workflow@lore
+```
+
+Legacy per-topic lore files stored in `.lores/` directories. Kept for existing users; the
+contexts skill provides a confirmation-gated migration to `.contexts/`.
 
 ## Trusted third-party skills
 
