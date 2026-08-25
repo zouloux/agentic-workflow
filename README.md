@@ -13,6 +13,8 @@ make long-running work resumable across sessions and agents.
 | [`tasks`](#tasks) | Track explicit `T1`/`T-*` work in the current thread | Current thread |
 | [`contexts`](#contexts) | Preserve factual `C-*` project knowledge in Git | Long term |
 | [`missions`](#missions) | Track outcome-driven `M-*` work in Git | Until completion |
+| [`figma-integration`](#figma-integration) | Implement and verify designs through Figma MCP | Current request |
+| [`claudie`](#claudie) | Enforce Claude-oriented tool discipline | Current session |
 
 The three work layers stay separate:
 
@@ -26,14 +28,10 @@ M-AUTH                  persistent mission
 tl-dr shapes the agent's responses across every layer.
 ```
 
-Install the core workflow:
+Install the workflow:
 
 ```bash
-npx skills add -g zouloux/agentic-workflow@tl-dr
-npx skills add -g zouloux/agentic-workflow@directives
-npx skills add -g zouloux/agentic-workflow@tasks
-npx skills add -g zouloux/agentic-workflow@contexts
-npx skills add -g zouloux/agentic-workflow@missions
+npx skills@latest add zouloux/agentic-workflow -g -s tl-dr directives tasks contexts missions figma-integration claudie
 ```
 
 Projects that want the conversational workflow active in every session can add this to
@@ -279,8 +277,17 @@ Remove a globally installed skill:
 npx skills remove -g tl-dr
 ```
 
-Install it again to update it from the repository:
+Update it from the repository without prompts:
 
 ```bash
-npx skills add -g zouloux/agentic-workflow@tl-dr
+npx -y skills@latest update tl-dr -g -y
 ```
+
+## Update all
+
+```bash
+npx -y skills@latest update -g -y
+```
+
+Updates only apply to installed skills. To install newly published workflow skills, run the
+installation command above again.
