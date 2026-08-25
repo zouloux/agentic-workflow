@@ -35,16 +35,17 @@ from an unverified selection.
 
 ## Source comments
 
-Record a stable Figma source in the style file during integration:
+Record the Figma node IDs returned by the MCP in the style file during integration. Do not require
+or reconstruct a full Figma URL when the MCP does not provide one:
 
 ```scss
 // Figma:
-// - Base: <canonical-parent-node-url>
+// - Base: <parent-node-id>
 .component {
 }
 ```
 
-- Record one canonical parent node by default.
+- Record one parent node ID by default.
 - Add child, theme, breakpoint, or state nodes only when they are materially useful for
   understanding the implemented styles. Otherwise omit them.
 - In SCSS, Less, or CSS, place a source immediately above the selector it explains.
