@@ -1,12 +1,14 @@
 ---
 name: claudie
-description: >
-  Claude-oriented harness discipline that prefers dedicated file tools over Python, shell text
-  processing, redirects, or heredocs. Load when the user invokes /claudie, explicitly asks Claude
-  to stop editing files through shell scripts, or applicable agent instructions require it.
+description: Claude-only discipline that requires dedicated file tools for file operations.
 ---
 
 # Claudie
+
+## Applicability
+
+Apply this skill only when the harness identifies Claude Code or the active LLM as Claude. If
+neither is explicitly known, do not apply it.
 
 Use the harness's dedicated tools for file operations. Apply this discipline for the current
 session.
