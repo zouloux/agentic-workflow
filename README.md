@@ -36,6 +36,20 @@ npx skills add -g zouloux/agentic-workflow@contexts
 npx skills add -g zouloux/agentic-workflow@missions
 ```
 
+Projects that want the conversational workflow active in every session can add this to
+their `AGENTS.md` or `CLAUDE.md`:
+
+```md
+## Agent workflow
+
+Load the `tl-dr`, `directives`, and `tasks` skills before working in this repository.
+
+This project also uses `contexts` and `missions`. Load them when the user invokes them,
+references `C-*` or `M-*`, or another project instruction requires them. Do not preload them.
+
+If a requested skill is unavailable, continue and report it.
+```
+
 ### Thread task
 
 ```text
@@ -118,22 +132,24 @@ Without a directive, the agent behaves normally.
 | `NOGO` | Treat the request as context without implementing it. |
 | `EXPLORE` | Investigate thoroughly without mutations. |
 | `ASK` | Clarify important uncertainty before acting. |
-| `ANSWER` | Answer directly without executing or mutating. |
+| `ANSWER` | Answer directly with minimal inspection and no execution or mutation. |
 | `WDYT` | Evaluate a proposal and its trade-offs without mutating. |
 | `AWG` | Check readiness for `GO` and report only material blockers. |
 | `PLAN` | Produce a concrete implementation plan without mutating. |
 | `VERIFY` | Verify work performed during the current session. |
 | `REVIEW` | Review the complete current implementation without using Git. |
 | `FIX` | Fix the most recent relevant review findings. |
+| `YN` | Answer with only yes or no. |
+| `TERSE` | Make the response extremely concise. |
+| `KISS` | Use the smallest correct solution. |
+| `HALT` | Stop immediately and report the critical reason. |
 
 `AWG` is a read-only preflight. It answers whether the request has enough information and
 permission for `GO`, or reports only the material blockers. It never grants or infers permission,
-and all `GO` safety and confirmation rules still apply. A conditional form can proceed immediately
-when ready:
+and all `GO` safety and confirmation rules still apply.
 
 ```text
 Implement OAuth login. AWG?
-Implement OAuth login. AWG? If yes, GO.
 ```
 
 ### tasks
@@ -141,13 +157,18 @@ Implement OAuth login. AWG? If yes, GO.
 [`skills/tasks/SKILL.md`](skills/tasks/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@tasks`
 
 Ephemeral work items for the current conversation. `T1` and `T2` are the recommended numeric
-forms; `T-1` and `T-2` remain equivalent aliases. `T1A` is an independently tracked subtask,
-while `T1-S1` is the first ordered step of `T1`. Task state never leaves the thread. `TODO` lists
-open tasks, `PENDING` defers one, and `CANCEL` closes one without execution.
+forms; `T-1` and `T-2` remain equivalent aliases. `NEW TASK`, `nouvelle tâche`, `T?`, and
+`T(new)` allocate the next numeric identifier and let the agent derive a short task name. `T1A`
+is an independently tracked subtask, while `T1-S1` is the first ordered step of `T1`. Task state
+never leaves the thread. `TODO` lists open tasks, `PENDING` defers one, and `CANCEL` closes one
+without execution. Question answers and later context reminders use a compact label such as
+`T4 - Header Size`.
 
 ```text
 T1: Explain the failure - ANSWER
 T2: Update the parser - GO
+NEW TASK: Compare header sizes - ANSWER
+T? - Add the mobile breakpoint - GO
 T2A: Add the regression test - GO
 T2-S1: Update the parser grammar
 T2-S2: Verify existing syntax remains compatible
@@ -157,10 +178,11 @@ T2-S2: Verify existing syntax remains compatible
 
 [`skills/contexts/SKILL.md`](skills/contexts/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@contexts`
 
-Durable factual maps stored in scoped `.contexts/` directories. `C-*` contexts contain current
-system state, decisions, boundaries, and related files or documentation. They never contain
-TODOs or work progress. The skill supports monorepos and offers a confirmation-gated migration
-from deprecated `.lores/` storage.
+Durable knowledge maps stored in scoped `.contexts/` directories. Each `C-*` context declares the
+subject it owns, then keeps only current design choices, known problems, rules, and authoritative
+files within that boundary. It never contains history, TODOs, or work progress. The skill supports
+monorepos, validates contexts with `/contexts lint`, and offers a confirmation-gated migration from
+deprecated `.lores/` storage.
 
 ### missions
 
@@ -169,6 +191,23 @@ from deprecated `.lores/` storage.
 Durable macro work stored in scoped `.missions/` directories. An `M-*` mission records its
 objective, current state, in-progress work, blockers, next actions, nice-to-have items, completion
 criteria, and related `C-*` contexts. Use `MISSIONS`, `M-* STATUS`, and `M-* DONE` to manage it.
+
+### figma-integration
+
+[`skills/figma-integration/SKILL.md`](skills/figma-integration/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@figma-integration`
+
+Reusable Figma MCP workflow for validating the selected source, reading design context, mapping
+designs to project primitives, recording only useful source nodes beside their styles, and
+verifying the result. Without a valid node, it stops and asks the user for the correct selection.
+It activates for Figma implementation or comparison work, not incidental mentions.
+
+### claudie
+
+[`skills/claudie/SKILL.md`](skills/claudie/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@claudie`
+
+Claude-oriented tool discipline for repositories that want file operations to use the harness's
+dedicated tools instead of Python, shell text processing, redirects, or heredocs. Load it from a
+project's `CLAUDE.md` or invoke `/claudie` explicitly.
 
 ### afk
 

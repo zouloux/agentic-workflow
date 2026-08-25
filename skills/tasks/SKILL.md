@@ -1,11 +1,11 @@
 ---
 name: tasks
 description: >
-  Tracks ephemeral current-thread T1/T-* work items, subtasks, ordered steps,
-  and their lifecycle. Owns numeric T1 and T-1 forms, named T-NAME forms,
-  plus PENDING, TODO, and CANCEL. MUST load for a canonical declaration or
-  when an uppercase control is used as an order. Never persists state outside
-  the current thread.
+  Tracks ephemeral current-thread T1/T-* work items, automatic new-task
+  declarations, subtasks, ordered steps, and their lifecycle. Owns numeric T1
+  and T-1 forms, named T-NAME forms, plus PENDING, TODO, and CANCEL. MUST load
+  for a recognized declaration or when an uppercase control is used as an
+  order. Never persists state outside the current thread.
 ---
 
 # Tasks
@@ -15,6 +15,7 @@ Track explicit work items by identifier for the current thread only. Keep all st
 ## Detection
 
 - A canonical declaration at the start of a line or list item is mandatory. Load this skill and track the declaration.
+- A new-task declaration at the start of a line or list item is mandatory. Recognize `NEW TASK`, `nouvelle tâche`, `T?`, and `T(new)` when followed by `.`, `:`, or `-` and a description.
 - An uppercase `PENDING`, `TODO`, or `CANCEL` used as an order is mandatory. Load this skill and apply it.
 - A lowercase or mixed-case control may trigger this skill only when it is clearly an order, such as a standalone instruction or an attached suffix.
 - A control or identifier mentioned in ordinary prose is not an order or a new declaration.
@@ -23,6 +24,8 @@ Track explicit work items by identifier for the current thread only. Keep all st
 
 - This skill exclusively owns numeric `T<number>` forms and the `T-` prefix.
 - A declaration starts a line or list item with a recognized identifier, followed immediately by `.` or `:`, then its description.
+- A new-task declaration allocates the next unused numeric identifier. The accepted prefixes are case-insensitive `NEW TASK` and `nouvelle tâche`, plus exact `T?` and case-insensitive `T(new)`. Replace the prefix with the allocated identifier in all responses; never keep it as the task's display identifier.
+- Derive a concise task name from each new-task description, usually two to five words. For canonical declarations, preserve a concise description as the name or condense a long request. Keep the complete request as the task's scope; the short name is only a display label.
 - Use `T1`, `T2`, and so on for numeric work. This is the recommended form.
 - Accept `T-1`, `T-2`, and equivalent hyphenated numeric forms as aliases. `T1` and `T-1` always resolve to the same item.
 - Use a dotted numeric suffix for a reply or discussion point: `T1.1`, `T1.2`, and so on. `T-1.1` is an alias. A discussion point is not separately tracked unless the user explicitly declares it as one.
@@ -44,6 +47,9 @@ Examples:
 ```text
 T1. Explain the failure - ANSWER
 T2: Update the parser - GO
+NEW TASK: Compare header sizes - ANSWER
+T? - Add the mobile breakpoint - GO
+T(new) - Document the chosen size
 T2A. Add the regression test - GO
 T2-S1: Update the parser grammar
 T2-S2: Verify existing syntax remains compatible
@@ -57,6 +63,8 @@ An execution directive can be attached to a declaration through punctuation or a
 - Identify all declarations before handling them.
 - Track each declared item as pending, in progress, completed, blocked, or canceled while it remains relevant in the current thread.
 - Refer to items by ID when reporting progress, completion, blockers, dependencies, or a shared cause.
+- When answering a task handled with `ANSWER`, identify it as `<ID> - <short name>` and include a very condensed version of the question beside it, for example `T4 - Header Size - Q: mobile size?`.
+- After a long exchange or when many tasks are visible, restore context by starting a task-specific update with `<ID> - <short name>:`, for example `T4 - Header Size: updated to 64px.` Do not repeat the label on every short adjacent reply when the task is already unambiguous.
 - Handle items independently. A blocked item does not prevent work on another item unless they depend on each other.
 - Mark an item in progress when work starts.
 - Mark an item completed automatically only after its requested outcome and necessary verification are complete.
@@ -94,8 +102,7 @@ Mark the scoped item canceled and do not inspect, answer, execute, or mutate for
 
 ## Scope
 
-- A control appended to a canonical declaration applies only to that item.
-- A control paired with an identifier reference applies only to that identifier.
+- A control appended to a canonical declaration or paired with an identifier reference applies only to that item.
 - A standalone `TODO` applies to all known items in the current thread.
 - A local task control overrides a message-wide execution directive for that item.
 - `CANCEL` is final for its item and overrides every execution directive in the same request.

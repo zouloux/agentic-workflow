@@ -36,7 +36,7 @@ directory.
 | `MISSIONS` | Run `scripts/list.sh` and show active missions only. |
 | bare `M-*` | Resolve with `scripts/resolve.sh`, read the mission, and treat it as the current target. |
 | `M-* STATUS` | Run `scripts/status.sh M-*` and report its current work sections. |
-| `M-* DONE` | Follow the completion procedure below, then run `scripts/done.sh M-*`. |
+| `M-* DONE` | Read `references/completion.md`, follow its completion procedure, then run `scripts/done.sh M-*`. |
 | `/missions create NAME` | Run `scripts/create.sh NAME [subject-path]`. The subject path defaults to the current directory. Then fill the mission with known facts; do not invent details. |
 | `/missions delete M-*` | Ask for explicit confirmation, then run `scripts/delete.sh --yes M-*`. Never bypass confirmation. |
 
@@ -70,24 +70,6 @@ At the end of the work, update the mission once with the resulting current truth
   accumulate checked-off work or session notes.
 - Update `## Objective / Outcome`, `## Done when`, or `## Contexts` only when their current
   meaning changed.
-
-## Completion procedure
-
-Before marking `M-* DONE`:
-
-1. Read the mission and resolve its declared `C-*` contexts when the contexts skill is
-   available.
-2. Identify durable facts or decisions learned by the mission that future work needs.
-3. Transfer only those facts to the appropriate referenced contexts. Do not invent facts,
-   create a context without authorization, or add mission backlinks.
-4. If required facts cannot be transferred because a reference is missing, ambiguous, or
-   unavailable, report the blocker and leave the mission active.
-5. Update the mission to its final current state, clear obsolete work items, and ensure
-   `## Done when` is satisfied.
-6. Run `scripts/done.sh M-*`.
-
-If there are no durable facts to transfer, complete the mission without manufacturing
-context content.
 
 ## File format
 

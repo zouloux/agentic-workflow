@@ -3,7 +3,7 @@ name: directives
 description: >
   Execution-control modes EXPLORE/explore, ASK/ask, ANSWER/answer, NOGO,
   NO GO, WDYT/wdyt, AWG/awg, GO/go, PLAN/plan, VERIFY/verify, REVIEW/review,
-  and FIX/fix.
+  FIX/fix, YN/yn, TERSE/terse, KISS/kiss, and HALT/halt.
   MUST load when an uppercase mode is used as an order. May load for a
   lowercase mode only when it is clearly used as an order, never when it
   appears in ordinary prose.
@@ -15,7 +15,7 @@ Interpret the user's execution-control modes. Apply them without repeating the m
 
 ## Activation
 
-On activation, list the available directives once, without descriptions, in the current language: `GO`, `NOGO`, `EXPLORE`, `ASK`, `ANSWER`, `WDYT`, `AWG`, `PLAN`, `VERIFY`, `REVIEW`, `FIX`. Do not repeat this list while the skill remains active.
+On activation, list the available directives once, without descriptions, in the current language: `GO`, `NOGO`, `EXPLORE`, `ASK`, `ANSWER`, `WDYT`, `AWG`, `PLAN`, `VERIFY`, `REVIEW`, `FIX`, `YN`, `TERSE`, `KISS`, `HALT`. Do not repeat this list while the skill remains active.
 
 When the user explicitly disables the skill, announce the equivalent of "Directives disabled" once in the current language and stop applying it. If the skill is activated again later, list the available directives once again.
 
@@ -28,6 +28,14 @@ When the user explicitly disables the skill, announce the equivalent of "Directi
 
 Recognize punctuation and common separators without changing meaning, including suffixes such as `-> GO` or `- ANSWER`. Treat `NO GO` and `NO-GO` as aliases for `NOGO`.
 
+## Classes And Priority
+
+- `HALT` has the highest directive priority and stops all further work in its scope.
+- `GO`, `NOGO`, `EXPLORE`, `ASK`, `ANSWER`, `WDYT`, `AWG`, `PLAN`, `VERIFY`, `REVIEW`, and `FIX` select execution behavior.
+- `KISS` constrains the solution. `YN` and `TERSE` constrain the response.
+- Constraints compose with an execution mode but never grant permission to inspect, execute, or mutate.
+- Safety requirements and explicit confirmation requirements still apply in every mode.
+
 ## Attachment And Scope
 
 Other skills may declare labeled request syntax and prefixes. The declaring skill owns recognition and meaning for every prefix it declares. This skill does not maintain a central plugin or prefix registry.
@@ -37,15 +45,19 @@ Determine directive scope from syntactic attachment:
 - A directive inside or appended to a recognized declaration applies only to that declaration.
 - A directive in the same list item or sentence applies to the nearest request when punctuation or a separator clearly joins them.
 - A standalone directive applies to the whole message.
-- A locally attached directive overrides a message-wide directive for its request.
-- The last directive replaces earlier directives only within the same scope.
-- An explicitly conditional `AWG` followed by `GO` is the exception: both modes compose,
-  with `AWG` guarding whether `GO` may begin.
+- A locally attached directive overrides a message-wide directive of the same class for its request.
+- The last execution mode replaces earlier execution modes only within the same scope, unless a mode definition explicitly allows composition.
+- `YN`, `TERSE`, and `KISS` compose with each other and with the selected execution mode.
+- `HALT` overrides every other directive in the same scope.
 - Different requests may carry different directives. Never transfer authorization to mutate between them.
 
 Use declaration boundaries supplied by the skill that recognizes the declaration. No integration entry is needed here. If scope cannot be determined safely, ask one short question before mutating anything.
 
 ## Modes
+
+### HALT
+
+Stop the scoped work immediately. Do not start another tool call, mutation, or execution step in that scope. Notify the user of the critical reason for the stop and report any partial state or side effect that already occurred. Do not resume until the user gives a new explicit instruction.
 
 ### GO
 
@@ -65,7 +77,7 @@ Clarify the scoped request with the user before acting. Inspect available inform
 
 ### ANSWER
 
-Answer the scoped question directly. Inspect only when necessary for an accurate answer. Do not execute requested actions or mutate files, external systems, or persistent state.
+Answer the scoped question directly. Inspect only the minimum material necessary for an accurate answer. Do not explore broadly, execute requested actions, or mutate files, external systems, or persistent state.
 
 ### WDYT
 
@@ -80,7 +92,7 @@ Check whether the scoped request has enough information, permission, and relevan
 - State reasonable non-blocking assumptions instead of asking for unnecessary preferences.
 - Do not produce a full plan or start implementation unless separately authorized.
 
-When the user explicitly makes `GO` conditional on readiness, such as `AWG? If yes, GO`, treat `AWG` as a guard: execute `GO` immediately if ready; otherwise do not mutate and ask only for the blockers. `AWG` cannot infer or grant permission, and conditional execution remains subject to every confirmation and safety rule of `GO`. Without an explicit condition, `AWG` remains a read-only readiness check and a later standalone `GO` is required.
+When the user writes `AWG GO`, or explicitly makes `GO` conditional on readiness such as `AWG? If yes, GO`, treat `AWG` as a guard. If a user answer is materially required, do not mutate and ask only the focused blocking question. Otherwise, execute `GO` immediately. `AWG` cannot infer or grant permission, and guarded execution remains subject to every confirmation and safety rule of `GO`. Without `GO` or another explicit condition, `AWG` remains a read-only readiness check and a later standalone `GO` is required.
 
 ### PLAN
 
@@ -97,3 +109,17 @@ Review the scoped feature, file, or area as it currently exists in the repositor
 ### FIX
 
 Fix the issues listed in the most recent relevant agent response. Mutation is authorized only for those issues and their necessary verification. Do not start a new broad review. If the target findings are missing or ambiguous, ask which issues to fix. Confirm before any destructive or irreversible correction.
+
+## Constraints
+
+### YN
+
+Answer the scoped yes-or-no question with exactly the current-language equivalent of `yes` or `no`. Output no explanation, qualification, punctuation, formatting, or additional words. `YN` does not authorize execution or mutation.
+
+### TERSE
+
+Make the scoped response extremely concise while preserving the answer, critical blockers, and required safety information. Prefer one short sentence, a minimal state line, or the smallest useful code or command. Do not add a preamble, recap, optional detail, or closing offer. `TERSE` applies only to the response and does not change execution behavior.
+
+### KISS
+
+Use the smallest correct solution for the scoped work. Remove or avoid unjustified abstractions, helpers, configuration, compatibility layers, and speculative flexibility. Preserve requirements, correctness, safety, and necessary verification. `KISS` constrains the approach but does not authorize mutation.

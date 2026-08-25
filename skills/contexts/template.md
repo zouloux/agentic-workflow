@@ -1,26 +1,23 @@
 ---
 name: <kebab-name>
 description: <one line describing the system or subject>
+tracks: <one line stating the knowledge this context follows>
 ---
 
 # Context: <Subject Name>
 
-## System State
+## Design Choices
 
-- Durable facts about the current implementation and behavior.
+- Current design choices and the durable reasons they remain relevant.
 
-## Decisions
+## Known Problems
 
-- Decision and the durable reason it remains relevant.
+- Current problems and non-obvious gotchas future work must know.
 
-## Boundaries
+## Rules
 
-- Invariants, constraints, ownership limits, and non-obvious exclusions.
+- Invariants, constraints, boundaries, and rules.
 
 ## Related Files
 
 - `./src/path/to/file.ts` - short factual description
-
-## Related Documentation
-
-- `./docs/path/to/doc.md` - short factual description
