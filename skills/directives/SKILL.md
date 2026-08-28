@@ -2,8 +2,8 @@
 name: directives
 description: >
   Execution-control modes EXPLORE/explore, ASK/ask, ANSWER/answer, NOGO,
-  NO GO, WDYT/wdyt, AWG/awg, GO/go, PLAN/plan, VERIFY/verify, REVIEW/review,
-  FIX/fix, YN/yn, TERSE/terse, KISS/kiss, and HALT/halt.
+  NO GO, WDYT/wdyt, AWG/awg, GO/go, PLAN/plan, VERIFY/verify, LEARN/learn,
+  REVIEW/review, FIX/fix, YN/yn, TERSE/terse, KISS/kiss, and HALT/halt.
   MUST load when an uppercase mode is used as an order. May load for a
   lowercase mode only when it is clearly used as an order, never when it
   appears in ordinary prose.
@@ -15,7 +15,7 @@ Interpret the user's execution-control modes. Apply them without repeating the m
 
 ## Activation
 
-On activation, list the available directives once, without descriptions, in the current language: `GO`, `NOGO`, `EXPLORE`, `ASK`, `ANSWER`, `WDYT`, `AWG`, `PLAN`, `VERIFY`, `REVIEW`, `FIX`, `YN`, `TERSE`, `KISS`, `HALT`. Do not repeat this list while the skill remains active.
+On activation, list the available directives once, without descriptions, in the current language: `GO`, `NOGO`, `EXPLORE`, `ASK`, `ANSWER`, `WDYT`, `AWG`, `PLAN`, `VERIFY`, `LEARN`, `REVIEW`, `FIX`, `YN`, `TERSE`, `KISS`, `HALT`. Do not repeat this list while the skill remains active.
 
 When the user explicitly disables the skill, announce the equivalent of "Directives disabled" once in the current language and stop applying it. If the skill is activated again later, list the available directives once again.
 
@@ -31,7 +31,7 @@ Recognize punctuation and common separators without changing meaning, including 
 ## Classes And Priority
 
 - `HALT` has the highest directive priority and stops all further work in its scope.
-- `GO`, `NOGO`, `EXPLORE`, `ASK`, `ANSWER`, `WDYT`, `AWG`, `PLAN`, `VERIFY`, `REVIEW`, and `FIX` select execution behavior.
+- `GO`, `NOGO`, `EXPLORE`, `ASK`, `ANSWER`, `WDYT`, `AWG`, `PLAN`, `VERIFY`, `LEARN`, `REVIEW`, and `FIX` select execution behavior.
 - `KISS` constrains the solution. `YN` and `TERSE` constrain the response.
 - Constraints compose with an execution mode but never grant permission to inspect, execute, or mutate.
 - Safety requirements and explicit confirmation requirements still apply in every mode.
@@ -101,6 +101,23 @@ Explore as needed and produce a concrete implementation plan. Do not mutate anyt
 ### VERIFY
 
 Verify only work performed during the current session. Inspect affected files and run relevant checks that are not expected to alter source files or persistent state. Report results without fixing failures.
+
+### LEARN
+
+Review the current conversation and return candidates for durable knowledge learned during the
+session. Do not mutate files, external systems, or persistent data.
+
+- Include current, reusable, non-obvious facts learned from user corrections, explicit decisions,
+  or manual changes reported by the user.
+- Include independently inferred missing context only when consistent project conventions or an
+  authoritative source provide sufficient evidence. Do not present unsupported assumptions as
+  learnings.
+- Exclude temporary work state, completed actions, generic observations, and implementation details
+  that are obvious from the source.
+- Number candidates as `L-1`, `L-2`, and so on. List user-grounded learnings first. Put agent-inferred
+  learnings last and mark each one `[inferred]` in the current language.
+- Keep candidates ephemeral within the current conversation. Never persist them automatically.
+- If there are no durable learnings, state that directly instead of inventing candidates.
 
 ### REVIEW
 

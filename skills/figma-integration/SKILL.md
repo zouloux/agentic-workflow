@@ -35,11 +35,13 @@ from an unverified selection.
 
 ## Source comments
 
-Record the Figma node IDs returned by the MCP in the style file during integration. Do not require
-or reconstruct a full Figma URL when the MCP does not provide one:
+Record the Figma node IDs returned by the MCP in exactly one place during integration. Prefer the
+style file (CSS Modules, SCSS, CSS, Less, or equivalent). If no style file exists, put the comment
+in the TSX or JSX component instead. Never duplicate it across style and component files. Do not
+require or reconstruct a full Figma URL when the MCP does not provide one:
 
 ```scss
-// Figma:
+// Figma-Integration:
 // - Base: <parent-node-id>
 .component {
 }
@@ -48,7 +50,19 @@ or reconstruct a full Figma URL when the MCP does not provide one:
 - Record one parent node ID by default.
 - Add child, theme, breakpoint, or state nodes only when they are materially useful for
   understanding the implemented styles. Otherwise omit them.
-- In SCSS, Less, or CSS, place a source immediately above the selector it explains.
-- With CSS-in-JS, use one Figma comment at the top of the component and list only the useful nodes.
+- In a style file, place the `Figma-Integration` source immediately above the selector it explains.
+- With CSS-in-JS, use one `Figma-Integration` comment at the top of the component and list only the
+  useful nodes.
+- Do not add comments to HTML, TSX, JSX, SCSS, CSS, Less, or other integration code by default.
+  Allow only `TODO`, `FIXME`, `Figma-Integration`, and `Magic-number` comments. Use `Magic-number`
+  to explain why a non-obvious numeric value is necessary, with a terse reason:
+
+  ```scss
+  // Magic-number: Visual adapted position to correct the missing text-cap.
+  margin-top: 2rem;
+  ```
+
+  Add another terse explanation only when the code would be genuinely difficult to understand
+  without it.
 - Do not copy a visual analysis into comments or store Figma node inventories in contexts.
 - A mission may keep additional node references while they are needed for active work.
