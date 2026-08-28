@@ -135,7 +135,7 @@ Without a directive, the agent behaves normally.
 | `AWG` | Check readiness for `GO` and report only material blockers. |
 | `PLAN` | Produce a concrete implementation plan without mutating. |
 | `VERIFY` | Verify work performed during the current session. |
-| `LEARN` | Return ephemeral candidates for durable knowledge learned during the session. |
+| `WDYL` | Return ephemeral candidates for durable knowledge learned during the session. |
 | `REVIEW` | Review the complete current implementation without using Git. |
 | `FIX` | Fix the most recent relevant review findings. |
 | `YN` | Answer with only yes or no. |
