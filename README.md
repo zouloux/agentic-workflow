@@ -6,15 +6,16 @@ make long-running work resumable across sessions and agents.
 
 ## Core workflow
 
-| Skill | Role | Lifetime |
-|-------|------|----------|
-| [`tl-dr`](#tl-dr) | Keep responses answer-first, concise, and technically complete | Current session |
-| [`directives`](#directives) | Control what the agent may do now | Current request |
-| [`tasks`](#tasks) | Track explicit `T1`/`T-*` work in the current thread | Current thread |
-| [`contexts`](#contexts) | Preserve factual `C-*` project knowledge in Git | Long term |
-| [`missions`](#missions) | Track outcome-driven `M-*` work in Git | Until completion |
-| [`figma-integration`](#figma-integration) | Implement and verify designs through Figma MCP | Current request |
-| [`claudie`](#claudie) | Enforce Claude-oriented tool discipline | Current session |
+| Skill                                     | Role                                                           | Lifetime         |
+|-------------------------------------------|----------------------------------------------------------------|------------------|
+| [`tl-dr`](#tl-dr)                         | Keep responses answer-first, concise, and technically complete | Current session  |
+| [`directives`](#directives)               | Control what the agent may do now                              | Current request  |
+| [`tasks`](#tasks)                         | Track explicit `T1`/`T-*` work in the current thread           | Current thread   |
+| [`contexts`](#contexts)                   | Preserve factual `C-*` project knowledge in Git                | Long term        |
+| [`missions`](#missions)                   | Track outcome-driven `M-*` work in Git                         | Until completion |
+| [`figma-integration`](#figma-integration) | Implement and verify designs through Figma MCP                 | Current request  |
+| [`claudie`](#claudie)                     | Enforce Claude-oriented tool discipline                        | Current session  |
+| [`afk`](#afk)                             | Send mobile notifications while the user is away               | Current session  |
 
 The three work layers stay separate:
 
@@ -31,7 +32,7 @@ tl-dr shapes the agent's responses across every layer.
 Install the workflow:
 
 ```bash
-npx skills@latest add zouloux/agentic-workflow -g -s tl-dr directives tasks contexts missions figma-integration claudie
+npx skills@latest add zouloux/agentic-workflow -g -s tl-dr directives tasks contexts missions figma-integration claudie afk
 ```
 
 Projects that want the conversational workflow active in every session can add this to
@@ -121,27 +122,34 @@ Inspired by these skills:
 
 [`skills/directives/SKILL.md`](skills/directives/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@directives`
 
-Execution-control modes can apply to a whole message or to a syntactically attached request.
+Directives can apply to a whole message or to a syntactically attached request.
 Without a directive, the agent behaves normally.
 
-| Directive | Behavior |
-|-----------|----------|
-| `GO` | Implement or execute the request. |
-| `NOGO` | Treat the request as context without implementing it. |
-| `EXPLORE` | Investigate thoroughly without mutations. |
-| `ASK` | Clarify important uncertainty before acting. |
-| `ANSWER` | Answer directly with minimal inspection and no execution or mutation. |
-| `WDYT` | Evaluate a proposal and its trade-offs without mutating. |
-| `AWG` | Check readiness for `GO` and report only material blockers. |
-| `PLAN` | Produce a concrete implementation plan without mutating. |
-| `VERIFY` | Verify work performed during the current session. |
-| `WDYL` | Return ephemeral candidates for durable knowledge learned during the session. |
-| `REVIEW` | Review the complete current implementation without using Git. |
-| `FIX` | Fix the most recent relevant review findings. |
-| `YN` | Answer with only yes or no. |
-| `TERSE` | Make the response extremely concise. |
-| `KISS` | Use the smallest correct solution. |
-| `HALT` | Stop immediately and report the critical reason. |
+| Directive      | Behavior                                                                      |
+|----------------|-------------------------------------------------------------------------------|
+| `HELP`         | List every available directive in a localized Markdown table.                 |
+| `GO`           | Implement or execute the request.                                             |
+| `NOGO`         | Treat the request as context without implementing it.                         |
+| `EXPLORE`      | Investigate thoroughly without mutations.                                     |
+| `ASK`          | Clarify important uncertainty before acting.                                  |
+| `ANSWER`       | Answer directly with minimal inspection and no execution or mutation.         |
+| `WDYT`         | Evaluate a proposal and its trade-offs without mutating.                      |
+| `AWG`          | Check readiness for `GO` and report only material blockers.                   |
+| `PLAN`         | Produce a concrete implementation plan without mutating.                      |
+| `META`         | Show the proposed code transformation, affected source, and data flow.        |
+| `BLAST-RADIUS` | Estimate affected files, functions, and line deltas.                          |
+| `VERIFY`       | Verify work performed during the current session.                             |
+| `WDYL`         | Return ephemeral candidates for durable knowledge learned during the session. |
+| `REVIEW`       | Review the complete current implementation without using Git.                 |
+| `FIX`          | Fix the most recent relevant review findings.                                 |
+| `YN`           | Answer with only yes or no.                                                   |
+| `TERSE`        | Make the response extremely concise.                                          |
+| `KISS`         | Use the smallest correct solution.                                            |
+| `TABLE`        | Format the result as a Markdown table.                                        |
+| `HALT`         | Stop immediately and report the critical reason.                              |
+
+`HELP` replaces automatic directive listing when the skill loads. It returns the complete list in
+the current conversation language.
 
 `AWG` is a read-only preflight. It answers whether the request has enough information and
 permission for `GO`, or reports only the material blockers. It never grants or infers permission,
@@ -150,6 +158,40 @@ and all `GO` safety and confirmation rules still apply.
 ```text
 Implement OAuth login. AWG?
 ```
+
+`META` explains the intended source transformation rather than the agent's editing process. It
+identifies affected files and functions, relevant structural changes, and the resulting data flow.
+The agent chooses the clearest representation for the task.
+
+`BLAST-RADIUS` provides a smaller structural estimate:
+
+```text
+code.helper.ts
+~ checkAll() -> +10~15L
+~ verifyErrors() -> +2L
++ validate() -> +5L
+- removedFunction() -> -50L
+```
+
+`HALT` can guard execution with a condition. It stops only when that condition becomes true and
+always reports the trigger. An associated task becomes blocked:
+
+```text
+T3 - Update migration - HALT
+Condition: schema file is missing.
+No files were changed.
+```
+
+`TABLE` changes only presentation and composes with commands such as `TODO`:
+
+```text
+TODO TABLE
+```
+
+| ID | Task             | Status  | Description                                            |
+|----|------------------|---------|--------------------------------------------------------|
+| T1 | Add META         | PENDING | Show the proposed source transformation and data flow. |
+| T3 | Update migration | BLOCKED | The schema file is missing.                            |
 
 ### tasks
 
@@ -173,6 +215,14 @@ T2-S1: Update the parser grammar
 T2-S2: Verify existing syntax remains compatible
 ```
 
+`TODO` lists only open tasks and keeps each description to three lines or fewer:
+
+```text
+T1 - Add META directive - PENDING
+Show the proposed source transformation clearly.
+Include affected files, functions, and data flow.
+```
+
 ### contexts
 
 [`skills/contexts/SKILL.md`](skills/contexts/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@contexts`
@@ -193,7 +243,8 @@ criteria, and related `C-*` contexts. Use `MISSIONS`, `M-* STATUS`, and `M-* DON
 
 ### figma-integration
 
-[`skills/figma-integration/SKILL.md`](skills/figma-integration/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@figma-integration`
+[`skills/figma-integration/SKILL.md`](skills/figma-integration/SKILL.md) |
+`npx skills add -g zouloux/agentic-workflow@figma-integration`
 
 Reusable Figma MCP workflow for validating the selected source, reading design context, mapping
 designs to project primitives, recording only useful source nodes beside their styles, and
@@ -215,60 +266,22 @@ project's `CLAUDE.md` or invoke `/claudie` explicitly.
 AFK mode for macOS agents, with mobile notifications sent to an iPhone through iCloud Reminders.
 The agent alerts you when work completes, needs a decision, or becomes blocked.
 
-## Deprecated skills
-
-### terse
-
-> [!WARNING]
-> Deprecated. Use [`tl-dr`](#tl-dr) for new installations.
-
-[`skills/terse/SKILL.md`](skills/terse/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@terse`
-
-Legacy answer-first, minimal-token response style.
-
-### track
-
-> [!WARNING]
-> Deprecated. Kept for existing users; avoid new installations.
-
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/track/SKILL.md`](skills/track/SKILL.md)
-
-```
-npx skills add -g zouloux/agentic-workflow@track
-```
-
-Legacy cross-project TODO tracking in an agent-agnostic store outside repositories.
-
-### lore
-
-> [!WARNING]
-> Deprecated. Use [`contexts`](#contexts), its direct replacement, for new installations.
-
-[github.com/zouloux/agentic-workflow](https://github.com/zouloux/agentic-workflow) · [`skills/lore/SKILL.md`](skills/lore/SKILL.md)
-
-```
-npx skills add -g zouloux/agentic-workflow@lore
-```
-
-Legacy per-topic lore files stored in `.lores/` directories. Kept for existing users; the
-contexts skill provides a confirmation-gated migration to `.contexts/`.
-
 ## Trusted third-party skills
 
 Skills I've audited and use. **Install per project** (no `-g`) so they only load where the
 stack is relevant. Links point to source — review before installing; "trusted" means the
 version I read, not a guarantee of future updates.
 
-| Skill | Source | Install |
-|-------|--------|---------|
-| building-components | [vercel/components.build](https://github.com/vercel/components.build) | `npx skills add vercel/components.build@building-components` |
-| next-best-practices | [vercel/nextjs-skills](https://github.com/vercel/nextjs-skills) | `npx skills add vercel/nextjs-skills@next-best-practices` |
-| tailwind-best-practices | [ofershap/tailwind-best-practices](https://github.com/ofershap/tailwind-best-practices) | `npx skills add ofershap/tailwind-best-practices@tailwind-best-practices` |
-| deploy-to-vercel | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills@deploy-to-vercel` |
-| turborepo | [vercel/turborepo](https://github.com/vercel/turborepo) | `npx skills add vercel/turborepo@turborepo` |
-| vercel-react-best-practices | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills@vercel-react-best-practices` |
-| vercel-react-native-skills | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills@vercel-react-native-skills` |
-| web-design-guidelines | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills@web-design-guidelines` |
+| Skill                       | Source                                                                                  | Install                                                                   |
+|-----------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| building-components         | [vercel/components.build](https://github.com/vercel/components.build)                   | `npx skills add vercel/components.build@building-components`              |
+| next-best-practices         | [vercel/nextjs-skills](https://github.com/vercel/nextjs-skills)                         | `npx skills add vercel/nextjs-skills@next-best-practices`                 |
+| tailwind-best-practices     | [ofershap/tailwind-best-practices](https://github.com/ofershap/tailwind-best-practices) | `npx skills add ofershap/tailwind-best-practices@tailwind-best-practices` |
+| deploy-to-vercel            | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)                 | `npx skills add vercel-labs/agent-skills@deploy-to-vercel`                |
+| turborepo                   | [vercel/turborepo](https://github.com/vercel/turborepo)                                 | `npx skills add vercel/turborepo@turborepo`                               |
+| vercel-react-best-practices | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)                 | `npx skills add vercel-labs/agent-skills@vercel-react-best-practices`     |
+| vercel-react-native-skills  | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)                 | `npx skills add vercel-labs/agent-skills@vercel-react-native-skills`      |
+| web-design-guidelines       | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)                 | `npx skills add vercel-labs/agent-skills@web-design-guidelines`           |
 
 ## Update or uninstall a skill
 

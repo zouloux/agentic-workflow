@@ -94,7 +94,15 @@ Leave the scoped item pending. Do not inspect, answer, execute, or mutate for it
 
 ### TODO
 
-List all known items in the current thread that are not completed or canceled. Include pending, in-progress, and blocked items. Show each item's ID, status, and a short description without executing or mutating it. If none remain, say so.
+List all known items in the current thread that are not completed or canceled. Include pending, in-progress, and blocked items without executing or mutating them. Format each item as:
+
+```text
+T1 - Short task name - PENDING
+A compact description of the task's current scope.
+Use no more than three description lines.
+```
+
+Use the uppercase status `PENDING`, `IN PROGRESS`, or `BLOCKED`. Keep the title on one line, followed by at most three lines that summarize the current scope, current step, or blocker. Do not include task history, completed details, or unrelated commentary. If no items remain, say so.
 
 ### CANCEL
 
