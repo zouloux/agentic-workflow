@@ -3,9 +3,10 @@ name: tasks
 description: >
   Tracks ephemeral current-thread T1/T-* work items, automatic new-task
   declarations, subtasks, ordered steps, and their lifecycle. Owns numeric T1
-  and T-1 forms, named T-NAME forms, plus PENDING, TODO, and CANCEL. MUST load
-  for a recognized declaration or when an uppercase control is used as an
-  order. Never persists state outside the current thread.
+  and T-1 forms, named T-NAME forms, plus PENDING, TODO, DONE, CANCEL,
+  WDC, PR-REVIEW, and PR-FIX. MUST load for a recognized declaration or
+  when an uppercase control is used as an order. Never persists state outside
+  the current thread.
 ---
 
 # Tasks
@@ -16,7 +17,7 @@ Track explicit work items by identifier for the current thread only. Keep all st
 
 - A canonical declaration at the start of a line or list item is mandatory. Load this skill and track the declaration.
 - A new-task declaration at the start of a line or list item is mandatory. Recognize `NEW TASK`, `nouvelle tâche`, `T?`, and `T(new)` when followed by `.`, `:`, or `-` and a description.
-- An uppercase `PENDING`, `TODO`, or `CANCEL` used as an order is mandatory. Load this skill and apply it.
+- An uppercase `PENDING`, `TODO`, `DONE`, `CANCEL`, `WDC`, `OSEF`, `PR-REVIEW`, or `PR-FIX` used as an order is mandatory. Load this skill and apply it.
 - A lowercase or mixed-case control may trigger this skill only when it is clearly an order, such as a standalone instruction or an attached suffix.
 - A control or identifier mentioned in ordinary prose is not an order or a new declaration.
 
@@ -54,6 +55,7 @@ T2A. Add the regression test - GO
 T2-S1: Update the parser grammar
 T2-S2: Verify existing syntax remains compatible
 T-AUTH: Review the authentication flow - REVIEW
+T3: Keep the current behavior - OSEF
 ```
 
 An execution directive can be attached to a declaration through punctuation or a common separator. The directives skill defines its effect; this skill supplies the declaration boundary and scoped identifier.
@@ -69,6 +71,8 @@ An execution directive can be attached to a declaration through punctuation or a
 - Mark an item in progress when work starts.
 - Mark an item completed automatically only after its requested outcome and necessary verification are complete.
 - Mark an item blocked when required information, permission, or a dependency prevents progress.
+- Keep source metadata for imported items, including the source kind, external identifier, URL, and associated scope.
+  Use that metadata to update an existing imported item instead of creating a duplicate.
 - The agent may declare newly discovered required work with the next unused numeric ID for an independent item or the next unused letter for a direct subtask. State why it was added and leave it pending until the user authorizes it with an execution directive or direct instruction.
 - Do not create entries for routine implementation steps.
 - Do not create follow-up entries automatically after an answer or opinion.
@@ -104,17 +108,83 @@ Use no more than three description lines.
 
 Use the uppercase status `PENDING`, `IN PROGRESS`, or `BLOCKED`. Keep the title on one line, followed by at most three lines that summarize the current scope, current step, or blocker. Do not include task history, completed details, or unrelated commentary. If no items remain, say so.
 
+### DONE
+
+Mark the scoped item completed without executing it. Use `DONE` as the displayed status when a completed item must be
+shown. Do not include completed items in `TODO` output.
+
+### WDC / OSEF
+
+Treat `WDC` and `OSEF` as exact aliases. Conclude the scoped item without changing code because the requested change is
+intentionally unnecessary.
+
+- If the item is linked to an external review thread, reply politely and tersely, then resolve the thread only after the
+  reply succeeds.
+- If the item has no external thread, mark it completed directly.
+- Mark the item `DONE` only after all applicable external actions succeed. Otherwise, mark it blocked and keep the
+  thread unresolved.
+- Do not invent a reason for declining the change. Use the user's reason when supplied; otherwise, state neutrally that
+  no change will be made.
+
 ### CANCEL
 
 Mark the scoped item canceled and do not inspect, answer, execute, or mutate for it. Cancellation is final for that identifier; preserve the identifier and do not reuse it.
+
+## PR Tasks
+
+PR task controls manage GitHub review threads as ephemeral current-thread tasks. They apply only to the selected pull
+request and do not replace, delete, or renumber unrelated tasks.
+
+Select the pull request from an explicit URL or number when supplied. Otherwise, resolve the pull request associated with
+the current branch. Ask one focused question if no pull request is found or the selection is ambiguous.
+
+### PR-REVIEW
+
+Synchronize tasks from the selected pull request without modifying source code or GitHub:
+
+- Fetch all unresolved review threads, including threads created before and after the current session. Do not import
+  resolved threads or general pull-request conversation comments.
+- Represent each thread as one task. Allocate the next unused numeric task identifier for a newly seen thread and retain
+  the existing identifier when refreshing it.
+- Store the pull request, thread identifier, thread URL, and actionable review request as task source metadata.
+- Mark a previously imported task `DONE` when its thread is now resolved. Do not infer resolution merely because a fetch
+  failed or returned incomplete data.
+- Finish by showing only the selected pull request's outstanding tasks using `TODO TERSE` formatting. Keep unrelated
+  tasks tracked but omit them from this output.
+
+### PR-FIX
+
+Process the scoped tasks from the selected pull request. When attached to a task identifier, process only that task.
+Otherwise, process all outstanding tasks for the selected pull request in their task order. If they have not yet been
+imported, synchronize them using `PR-REVIEW` first.
+
+For each task:
+
+- If it has `WDC` or `OSEF`, apply that control without changing code, committing, or pushing.
+- Otherwise, inspect the review thread and relevant code, implement the smallest complete correction, and run the
+  necessary verification.
+- If the task changes code, commit only its intended changes and push successfully before replying. Prefer one commit
+  per logical correction; multiple threads may reference the same commit when they describe the same issue.
+- Reply to the review thread in `TERSE` style. Include the associated commit SHA when a commit exists; otherwise, state
+  briefly why no commit was needed.
+- Resolve the review thread only after verification, any required push, and the reply all succeed. Then mark the task
+  `DONE`.
+- On failure, leave the thread unresolved, mark the task blocked, report the blocker, and continue with independent
+  tasks when safe.
+
+`PR-FIX` authorizes the source edits, verification, ordinary commit and push operations, GitHub reply, and thread
+resolution required for its scoped tasks. It does not authorize destructive Git operations, force pushes, unrelated
+changes, or bypassing safety and confirmation requirements.
 
 ## Scope
 
 - A control appended to a canonical declaration or paired with an identifier reference applies only to that item.
 - A standalone `TODO` applies to all known items in the current thread.
 - A local task control overrides a message-wide execution directive for that item.
-- `CANCEL` is final for its item and overrides every execution directive in the same request.
+- `CANCEL`, `WDC`, and `OSEF` are final for their item and override every execution directive in the same request.
 - `PENDING` blocks message-wide execution. A later execution directive explicitly attached
   to the same item releases it from pending; otherwise it remains pending.
-- If the scope of `PENDING` or `CANCEL` is ambiguous, ask one short question and do not act on any possible target.
+- A task-local `PR-FIX` applies only to that task. A standalone `PR-REVIEW` or `PR-FIX` applies only to tasks associated
+  with the selected pull request.
+- If the scope of `PENDING`, `DONE`, `CANCEL`, `WDC`, or `OSEF` is ambiguous, ask one short question and do not act on any possible target.
 - The last control replaces earlier controls only within the same scope.

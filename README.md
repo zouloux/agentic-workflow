@@ -219,9 +219,10 @@ Ephemeral work items for the current conversation. `T1` and `T2` are the recomme
 forms; `T-1` and `T-2` remain equivalent aliases. `NEW TASK`, `nouvelle tâche`, `T?`, and
 `T(new)` allocate the next numeric identifier and let the agent derive a short task name. `T1A`
 is an independently tracked subtask, while `T1-S1` is the first ordered step of `T1`. Task state
-never leaves the thread. `TODO` lists open tasks, `PENDING` defers one, and `CANCEL` closes one
-without execution. Question answers and later context reminders use a compact label such as
-`T4 - Header Size`.
+never leaves the thread. `TODO` lists open tasks, `PENDING` defers one, `DONE` completes one, and
+`CANCEL` closes one without execution. `WDC` and `OSEF` politely dismiss a task without changing
+code and resolve its linked review thread when applicable. Question answers and later context
+reminders use a compact label such as `T4 - Header Size`.
 
 ```text
 T1: Explain the failure - ANSWER
@@ -231,6 +232,7 @@ T? - Add the mobile breakpoint - GO
 T2A: Add the regression test - GO
 T2-S1: Update the parser grammar
 T2-S2: Verify existing syntax remains compatible
+T3: Keep the current behavior - OSEF
 ```
 
 `TODO` lists only open tasks and keeps each description to three lines or fewer:
@@ -240,6 +242,11 @@ T1 - Add META directive - PENDING
 Show the proposed source transformation clearly.
 Include affected files, functions, and data flow.
 ```
+
+`PR-REVIEW` imports unresolved GitHub review threads as isolated tasks and lists only that pull
+request's open work in `TODO TERSE` form. `PR-FIX` fixes those tasks, verifies and pushes code when
+needed, replies with the associated commit, resolves successful threads, and marks their tasks
+`DONE`. Unrelated conversation tasks remain tracked and are omitted from PR-specific output.
 
 ### contexts
 
