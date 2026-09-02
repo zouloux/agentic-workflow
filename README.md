@@ -15,6 +15,7 @@ make long-running work resumable across sessions and agents.
 | [`missions`](#missions)                   | Track outcome-driven `M-*` work in Git                         | Until completion |
 | [`figma-integration`](#figma-integration) | Implement and verify designs through Figma MCP                 | Current request  |
 | [`claudie`](#claudie)                     | Enforce Claude-oriented tool discipline                        | Current session  |
+| [`safe-coding`](#safe-coding)             | Add portable behavioral safety around agent operations         | Current session  |
 | [`afk`](#afk)                             | Send mobile notifications while the user is away               | Current session  |
 
 The three work layers stay separate:
@@ -32,7 +33,7 @@ tl-dr shapes the agent's responses across every layer.
 Install the workflow:
 
 ```bash
-npx skills@latest add zouloux/agentic-workflow -g -s tl-dr directives tasks contexts missions figma-integration claudie afk
+npx skills@latest add zouloux/agentic-workflow -g -s tl-dr directives tasks contexts missions figma-integration claudie safe-coding afk
 ```
 
 Projects that want the conversational workflow active in every session can add this to
@@ -41,7 +42,8 @@ their `AGENTS.md` or `CLAUDE.md`:
 ```md
 ## Agent workflow
 
-Load the `tl-dr`, `directives`, and `tasks` skills before working in this repository.
+Load the `tl-dr`, `directives`, `tasks`, and `safe-coding` skills before working in this
+repository.
 
 This project also uses `contexts` and `missions`. Load them when the user invokes them,
 references `C-*` or `M-*`, or another project instruction requires them. Do not preload them.
@@ -259,6 +261,18 @@ Claude-oriented tool discipline for repositories that want file operations to us
 dedicated tools instead of Python, shell text processing, redirects, or heredocs. Load it from a
 project's `CLAUDE.md` or invoke `/claudie` explicitly.
 
+### safe-coding
+
+[`skills/safe-coding/SKILL.md`](skills/safe-coding/SKILL.md) |
+`npx skills add -g zouloux/agentic-workflow@safe-coding`
+
+Portable behavioral safety for filesystem boundaries, Git operations, destructive commands,
+prompt injection, and concurrent worktrees. It complements harness permissions without weakening
+or bypassing them. Natural grants such as `ALLOW R ../other-repo`, `ALLOW RW ~/Downloads`,
+`ALLOW git stash`, and `ALLOW git` authorize additional capabilities for the current session.
+When permission is missing or an operation remains materially unsafe, the agent must `HALT` and
+ask the user instead of finding a workaround.
+
 ### afk
 
 [`skills/afk/SKILL.md`](skills/afk/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@afk`
@@ -295,6 +309,12 @@ Update it from the repository without prompts:
 
 ```bash
 npx -y skills@latest update tl-dr -g -y
+```
+
+For example, update `safe-coding` directly:
+
+```bash
+npx -y skills@latest update safe-coding -g -y
 ```
 
 ## Update all
