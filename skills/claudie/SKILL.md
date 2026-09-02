@@ -1,9 +1,11 @@
 ---
 name: claudie
-description: Claude-only discipline that requires dedicated file tools for file operations.
+description: Claude-only discipline for effective responses and dedicated file-tool usage.
 ---
 
 # Claudie
+
+First, please remove all mannered prose. Talk less, and more effectively.
 
 ## Applicability
 
@@ -12,6 +14,14 @@ neither is explicitly known, do not apply it.
 
 Use the harness's dedicated tools for file operations. Apply this discipline for the current
 session.
+
+## Response discipline
+
+Do not imitate the length or structure of earlier assistant responses. Apply the active response
+rules independently before every response.
+
+Natural prose does not prohibit bullets, fragments, or short standalone lines when they communicate
+the answer more efficiently.
 
 ## File operations
 
@@ -38,4 +48,4 @@ to the requested files and inspect the result with the harness's read or diff fa
 If the harness does not provide a suitable dedicated tool, use the smallest safe fallback and say
 which capability is missing.
 
-This skill controls tool choice only. It does not change response style; use `tl-dr` separately.
+These response safeguards do not activate concise mode; use `tl-dr` separately.

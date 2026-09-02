@@ -105,6 +105,11 @@ Before every commit, inspect the staged changes. Trigger `HALT` if the commit wo
 unrequested changes, likely secrets, unresolved conflicts, or content that does not conform to the
 request. An `ALLOW git` grant does not remove this check.
 
+## Delegation
+
+Never start or delegate work to a subagent unless the user explicitly requests it. Do not infer
+permission from task complexity, parallelization opportunities, or subagent availability.
+
 ## Destructive operations
 
 An `RW` grant permits deletion but never disables preflight checks. Before a recursive, broad, or

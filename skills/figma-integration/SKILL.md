@@ -10,6 +10,11 @@ description: >
 
 Before using the Figma MCP, load the harness's Figma design-to-code guidance when available.
 
+When implementation writes or changes source code, load the `clean-code` skill when available and
+apply the sections that match the target stack. `clean-code` governs source structure and styling
+conventions; this skill governs design evidence, fidelity, traceability, and verification. If it is
+unavailable, continue with the target project's established conventions.
+
 ## Source resolution
 
 Resolve the design source in this order:
@@ -33,6 +38,36 @@ from an unverified selection.
    interactions, or responsive behavior; report material gaps.
 4. Verify the result against the relevant Figma variants and report intentional deviations.
 
+## Fidelity
+
+Implement only what is supported by the verified Figma source, requested behavior, existing usage,
+or established project conventions.
+
+- Never add an unrepresented visual element or visual treatment, including a border, shadow, color,
+  icon, spacing, state, or interaction.
+- Never add design props, variants, or states for hypothetical future use. A design-facing prop must
+  come from a Figma variant, requested behavior, existing call site, or concrete content need.
+- Technical props required by established project conventions, such as `className`, are allowed.
+- Do not approximate, embellish, or silently "improve" the design.
+
+### Colors
+
+Preserve both the exact visual value and the semantics of design variables:
+
+1. When Figma defines a color directly as a hexadecimal or RGBA value, use that exact value in the
+   implementation. Do not replace it with a nearby token.
+2. Use a direct literal when the color appears once. When it is repeated within the component,
+   define a component-local custom property in `.root` and reuse it.
+3. When Figma uses a variable, search the design system and current codebase for its exact mapping.
+4. If no reliable mapping exists, **HALT** and ask for the expected token or mapping. Never replace a
+   missing Figma variable with its resolved raw value or an approximate color.
+
+```scss
+.root {
+  --component-accent: #7c3aed;
+}
+```
+
 ## Source comments
 
 Record the Figma node IDs returned by the MCP in exactly one place during integration. Prefer the
@@ -53,9 +88,10 @@ require or reconstruct a full Figma URL when the MCP does not provide one:
 - In a style file, place the `Figma-Integration` source immediately above the selector it explains.
 - With CSS-in-JS, use one `Figma-Integration` comment at the top of the component and list only the
   useful nodes.
-- Do not add comments to HTML, TSX, JSX, SCSS, CSS, Less, or other integration code by default.
-  Allow only `TODO`, `FIXME`, `Figma-Integration`, and `Magic-number` comments. Use `Magic-number`
-  to explain why a non-obvious numeric value is necessary, with a terse reason:
+- Do not add comments to HTML, TSX, JSX, SCSS, CSS, Less, or other integration code by default. The
+  `Figma-Integration` and `Magic-number` markers are specialized exceptions in addition to markers
+  allowed by an active `clean-code` skill. Use `Magic-number` to explain why a non-obvious numeric
+  value is necessary, with a terse reason:
 
   ```scss
   // Magic-number: Visual adapted position to correct the missing text-cap.

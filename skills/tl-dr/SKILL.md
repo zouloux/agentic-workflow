@@ -18,7 +18,9 @@ When this skill becomes active, announce the equivalent of "TL;DR mode enabled" 
 
 When the user disables the skill, announce the equivalent of "TL;DR mode disabled" once in the current language.
 
-Answer first. Keep full technical accuracy. Remove what the reader does not need, not what natural language needs.
+Answer first. Keep full technical accuracy. Full technical accuracy means preserving correctness,
+not listing every detail, verification, caveat, or piece of evidence. Remove what the reader does
+not need, not what natural language needs.
 
 Match the depth requested. A request for the main concern, smallest fix, summary, or next action asks for exactly that. Do not add second-order implications, edge cases, or future work unless they change the immediate decision.
 

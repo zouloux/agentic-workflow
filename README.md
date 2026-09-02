@@ -9,13 +9,14 @@ make long-running work resumable across sessions and agents.
 | Skill                                     | Role                                                           | Lifetime         |
 |-------------------------------------------|----------------------------------------------------------------|------------------|
 | [`tl-dr`](#tl-dr)                         | Keep responses answer-first, concise, and technically complete | Current session  |
+| [`claudie`](#claudie)                     | Improve Claude response and tool discipline                    | Current session  |
 | [`directives`](#directives)               | Control what the agent may do now                              | Current request  |
 | [`tasks`](#tasks)                         | Track explicit `T1`/`T-*` work in the current thread           | Current thread   |
 | [`contexts`](#contexts)                   | Preserve factual `C-*` project knowledge in Git                | Long term        |
 | [`missions`](#missions)                   | Track outcome-driven `M-*` work in Git                         | Until completion |
-| [`figma-integration`](#figma-integration) | Implement and verify designs through Figma MCP                 | Current request  |
-| [`claudie`](#claudie)                     | Enforce Claude-oriented tool discipline                        | Current session  |
 | [`safe-coding`](#safe-coding)             | Add portable behavioral safety around agent operations         | Current session  |
+| [`clean-code`](#clean-code)               | Apply stack-aware source and styling conventions               | Current session  |
+| [`figma-integration`](#figma-integration) | Implement and verify designs through Figma MCP                 | Current request  |
 | [`afk`](#afk)                             | Send mobile notifications while the user is away               | Current session  |
 
 The three work layers stay separate:
@@ -33,7 +34,7 @@ tl-dr shapes the agent's responses across every layer.
 Install the workflow:
 
 ```bash
-npx skills@latest add zouloux/agentic-workflow -g -s tl-dr directives tasks contexts missions figma-integration claudie safe-coding afk
+npx skills@latest add zouloux/agentic-workflow -g -s tl-dr claudie directives tasks contexts missions safe-coding clean-code figma-integration afk
 ```
 
 Projects that want the conversational workflow active in every session can add this to
@@ -42,8 +43,8 @@ their `AGENTS.md` or `CLAUDE.md`:
 ```md
 ## Agent workflow
 
-Load the `tl-dr`, `directives`, `tasks`, and `safe-coding` skills before working in this
-repository.
+Load the `tl-dr`, `directives`, `tasks`, `safe-coding`, and `clean-code` skills before working in
+this repository.
 
 This project also uses `contexts` and `missions`. Load them when the user invokes them,
 references `C-*` or `M-*`, or another project instruction requires them. Do not preload them.
@@ -119,6 +120,15 @@ Inspired by these skills:
 - [`unslop`](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md)
 - [`asd-ste100`](https://github.com/danyuchn/asd-ste100-skill/blob/master/SKILL.md)
 - [`caveman`](https://github.com/JuliusBrussee/caveman/blob/main/skills/caveman/SKILL.md)
+
+### claudie
+
+[`skills/claudie/SKILL.md`](skills/claudie/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@claudie`
+
+Claude-oriented response and tool discipline. It counters response-length imitation, keeps concise
+formats available, and requires file operations to use the harness's dedicated tools instead of
+Python, shell text processing, redirects, or heredocs. Load it from a project's `CLAUDE.md` or
+invoke `/claudie` explicitly.
 
 ### directives
 
@@ -243,24 +253,6 @@ Durable macro work stored in scoped `.missions/` directories. An `M-*` mission r
 objective, current state, in-progress work, blockers, next actions, nice-to-have items, completion
 criteria, and related `C-*` contexts. Use `MISSIONS`, `M-* STATUS`, and `M-* DONE` to manage it.
 
-### figma-integration
-
-[`skills/figma-integration/SKILL.md`](skills/figma-integration/SKILL.md) |
-`npx skills add -g zouloux/agentic-workflow@figma-integration`
-
-Reusable Figma MCP workflow for validating the selected source, reading design context, mapping
-designs to project primitives, recording only useful source nodes beside their styles, and
-verifying the result. Without a valid node, it stops and asks the user for the correct selection.
-It activates for Figma implementation or comparison work, not incidental mentions.
-
-### claudie
-
-[`skills/claudie/SKILL.md`](skills/claudie/SKILL.md) | `npx skills add -g zouloux/agentic-workflow@claudie`
-
-Claude-oriented tool discipline for repositories that want file operations to use the harness's
-dedicated tools instead of Python, shell text processing, redirects, or heredocs. Load it from a
-project's `CLAUDE.md` or invoke `/claudie` explicitly.
-
 ### safe-coding
 
 [`skills/safe-coding/SKILL.md`](skills/safe-coding/SKILL.md) |
@@ -272,6 +264,29 @@ or bypassing them. Natural grants such as `ALLOW R ../other-repo`, `ALLOW RW ~/D
 `ALLOW git stash`, and `ALLOW git` authorize additional capabilities for the current session.
 When permission is missing or an operation remains materially unsafe, the agent must `HALT` and
 ask the user instead of finding a workaround.
+
+### clean-code
+
+[`skills/clean-code/SKILL.md`](skills/clean-code/SKILL.md) |
+`npx skills add -g zouloux/agentic-workflow@clean-code`
+
+Stack-aware coding conventions for comments, React component structure, CSS Modules, and BEM.
+React, CSS Modules, and BEM rules apply independently, so the skill does not introduce a technology
+that the target project does not use. It keeps comments intentional, standardizes visual component
+roots and props, extracts complex JSX list callbacks, and places component-level styling modifiers
+on the root whenever possible.
+
+### figma-integration
+
+[`skills/figma-integration/SKILL.md`](skills/figma-integration/SKILL.md) |
+`npx skills add -g zouloux/agentic-workflow@figma-integration`
+
+Reusable Figma MCP workflow for validating the selected source, reading design context, mapping
+designs to project primitives, preserving exact visual values and design-variable semantics,
+recording only useful source nodes beside their styles, and verifying the result. It never invents
+design props or visual treatments. Without a valid node or a required variable mapping, it stops
+and asks for the missing source. It loads `clean-code` when available for source conventions and
+activates for Figma implementation or comparison work, not incidental mentions.
 
 ### afk
 
@@ -311,10 +326,11 @@ Update it from the repository without prompts:
 npx -y skills@latest update tl-dr -g -y
 ```
 
-For example, update `safe-coding` directly:
+For example, update the source-convention and Figma integration skills directly:
 
 ```bash
-npx -y skills@latest update safe-coding -g -y
+npx -y skills@latest update clean-code -g -y
+npx -y skills@latest update figma-integration -g -y
 ```
 
 ## Update all
