@@ -31,7 +31,13 @@ M-AUTH                  persistent mission
 tl-dr shapes the agent's responses across every layer.
 ```
 
-Install the workflow:
+Install every skill:
+
+```bash
+npx skills add -g zouloux/agentic-workflow
+```
+
+Or install the core workflow explicitly:
 
 ```bash
 npx skills@latest add zouloux/agentic-workflow -g -s tl-dr claudie directives tasks contexts missions safe-coding clean-code figma-integration afk
