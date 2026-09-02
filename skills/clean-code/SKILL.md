@@ -35,6 +35,8 @@ These markers are allowed when they communicate concrete, useful information:
 - Use the exact uppercase `NOTE:`, `TODO:`, or `FIXME:` prefix.
 - Keep the text short and actionable. Do not restate the code.
 - Do not invent a `TODO` or `FIXME` without a real pending task or known issue.
+- When editing or removing code associated with a marker, review the marker in the same change.
+  Update it if its context changed, or remove it if it is no longer relevant or the work is complete.
 - Honor additional comment markers defined by an active specialized skill.
 
 #### Section separators
