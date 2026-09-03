@@ -217,12 +217,15 @@ TODO TABLE
 
 Ephemeral work items for the current conversation. `T1` and `T2` are the recommended numeric
 forms; `T-1` and `T-2` remain equivalent aliases. `NEW TASK`, `nouvelle tâche`, `T?`, and
-`T(new)` allocate the next numeric identifier and let the agent derive a short task name. `T1A`
-is an independently tracked subtask, while `T1-S1` is the first ordered step of `T1`. Task state
-never leaves the thread. `TODO` lists open tasks, `PENDING` defers one, `DONE` completes one, and
-`CANCEL` closes one without execution. `WDC` and `OSEF` politely dismiss a task without changing
-code and resolve its linked review thread when applicable. Question answers and later context
-reminders use a compact label such as `T4 - Header Size`.
+`T(new)` allocate the next numeric identifier and let the agent derive a short task name.
+`T-DISPATCH` turns the actionable outcomes in a request into pending tasks without executing them.
+The canonical `EXPLORE T-DISPATCH` form inspects the relevant context first, detects dependencies
+and material blockers, then classifies each created task as `PENDING` or `BLOCKED`. `T1A` is an
+independently tracked subtask, while `T1-S1` is the first ordered step of `T1`. Task state never
+leaves the thread. `TODO` lists open tasks, `PENDING` defers one, `DONE` completes one, and `CANCEL`
+closes one without execution. `WDC` and `OSEF` politely dismiss a task without changing code and
+resolve its linked review thread when applicable. Question answers and later context reminders use
+a compact label such as `T4 - Header Size`.
 
 ```text
 T1: Explain the failure - ANSWER
@@ -233,6 +236,18 @@ T2A: Add the regression test - GO
 T2-S1: Update the parser grammar
 T2-S2: Verify existing syntax remains compatible
 T3: Keep the current behavior - OSEF
+```
+
+Dispatch directly from supplied information:
+
+```text
+Add password reset and document the endpoint. T-DISPATCH
+```
+
+Explore before dispatching to detect blockers and dependencies:
+
+```text
+Review the authentication flow and identify the remaining work. EXPLORE T-DISPATCH
 ```
 
 `TODO` lists only open tasks and keeps each description to three lines or fewer:

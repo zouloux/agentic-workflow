@@ -3,8 +3,8 @@ name: tasks
 description: >
   Tracks ephemeral current-thread T1/T-* work items, automatic new-task
   declarations, subtasks, ordered steps, and their lifecycle. Owns numeric T1
-  and T-1 forms, named T-NAME forms, plus PENDING, TODO, DONE, CANCEL,
-  WDC, PR-REVIEW, and PR-FIX. MUST load for a recognized declaration or
+  and T-1 forms, named T-NAME forms, plus T-DISPATCH, PENDING, TODO, DONE,
+  CANCEL, WDC, PR-REVIEW, and PR-FIX. MUST load for a recognized declaration or
   when an uppercase control is used as an order. Never persists state outside
   the current thread.
 ---
@@ -17,7 +17,7 @@ Track explicit work items by identifier for the current thread only. Keep all st
 
 - A canonical declaration at the start of a line or list item is mandatory. Load this skill and track the declaration.
 - A new-task declaration at the start of a line or list item is mandatory. Recognize `NEW TASK`, `nouvelle tâche`, `T?`, and `T(new)` when followed by `.`, `:`, or `-` and a description.
-- An uppercase `PENDING`, `TODO`, `DONE`, `CANCEL`, `WDC`, `OSEF`, `PR-REVIEW`, or `PR-FIX` used as an order is mandatory. Load this skill and apply it.
+- An uppercase `T-DISPATCH`, `PENDING`, `TODO`, `DONE`, `CANCEL`, `WDC`, `OSEF`, `PR-REVIEW`, or `PR-FIX` used as an order is mandatory. Load this skill and apply it.
 - A lowercase or mixed-case control may trigger this skill only when it is clearly an order, such as a standalone instruction or an attached suffix.
 - A control or identifier mentioned in ordinary prose is not an order or a new declaration.
 
@@ -33,6 +33,7 @@ Track explicit work items by identifier for the current thread only. Keep all st
 - Append an uppercase letter for a direct tracked subtask with its own lifecycle: `T1A`, `T1B`, and so on. `T-1A` and `T-1B` are aliases.
 - Append `-S<number>` for an ordered step inside a task: `T1-S1`, `T1-S2`, and so on. `T-1-S1` and `T-1-S2` are aliases.
 - Uppercase names use the hyphenated form, including `T-AUTH` and `T-AUTH-API`. Do not accept compressed names such as `TAUTH`.
+- `T-DISPATCH` is a reserved control and cannot be used as a named task identifier.
 - For equivalent numeric aliases, preserve the spelling used by the first declaration as the display form. Later aliases refer to that same item and never create another item.
 - An identifier inside a sentence is a reference, not a declaration.
 - Match the longest recognized identifier before treating `.` as the declaration delimiter.
@@ -91,6 +92,29 @@ A subtask is an independently trackable child outcome. A step is an ordered part
 - Create steps only when explicit sequence improves execution or when the user declares them. Do not expand routine work into steps by default.
 
 ## Controls
+
+### T-DISPATCH
+
+Turn the actionable outcomes in the scoped request into new independent tasks. Allocate the next unused numeric identifier for each outcome, derive a concise task name, retain the complete outcome as its scope, and do not execute any created task.
+
+- Create outcomes that can be completed and verified independently. Do not create tasks for routine implementation steps.
+- Without an attached `EXPLORE`, use only information already supplied by the user and create every resulting task as `PENDING`. Do not inspect the repository or infer blockers.
+- With an attached `EXPLORE`, explore first, then dispatch. Detect material dependencies, missing information, permissions, and external prerequisites. Mark a task `BLOCKED` only when one prevents it from starting; otherwise mark it `PENDING`.
+- Record dependencies between created tasks in their compact descriptions. A dependency on another created task does not by itself make a task `BLOCKED`.
+- Use `EXPLORE T-DISPATCH` as the canonical order. Accept the reverse order when the two controls are syntactically attached to the same request.
+- Finish by displaying the created tasks using the `TODO` format. Do not include unrelated existing tasks in this dispatch result.
+
+Examples:
+
+```text
+Review the authentication flow, identify the missing work, and note any external prerequisites.
+EXPLORE T-DISPATCH
+```
+
+```text
+Add password reset and document the endpoint.
+T-DISPATCH
+```
 
 ### PENDING
 
@@ -180,6 +204,7 @@ changes, or bypassing safety and confirmation requirements.
 
 - A control appended to a canonical declaration or paired with an identifier reference applies only to that item.
 - A standalone `TODO` applies to all known items in the current thread.
+- `T-DISPATCH` applies to the nearest syntactically attached request, or to the whole message when standalone. An attached `EXPLORE` authorizes its read-only investigation before tasks are created; it never authorizes executing those tasks.
 - A local task control overrides a message-wide execution directive for that item.
 - `CANCEL`, `WDC`, and `OSEF` are final for their item and override every execution directive in the same request.
 - `PENDING` blocks message-wide execution. A later execution directive explicitly attached
